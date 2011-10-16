@@ -38,8 +38,6 @@ end
 
 --[[ Items ]]--
 
--- GetItem(player, bag, slot)
--- GetBag(player, bag)
 -- GetItemCount(player, item)       TESTAR
 -- GetMoney(player)                 TESTAR
 
@@ -86,6 +84,8 @@ function Lib:GetBag(player, bag)
   end
 end
 
+-- or GetItemIcon(link)?
+
 function Lib:GetItemCount(player, item)
   if CachedPlayer(player) then
     return self.Cache:GetItemCount(player or self.PLAYER, item)
@@ -104,9 +104,6 @@ end
 
 
 --[[ Players ]]--
-
--- IteratePlayers
--- DeletePlayer(player)
 
 function Lib:IteratePlayers()
   return self.Cache:IteratePlayers()
