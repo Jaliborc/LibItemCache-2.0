@@ -18,7 +18,7 @@ along with LibItemSearch. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local Lib = LibStub('LibItemCache-1.0')
-if not Forever or not Lib.NewCache then
+if not Forever or Lib:HasCache() then
   return
 end
 

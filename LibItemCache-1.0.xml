@@ -2,8 +2,8 @@
 ..\FrameXML\UI.xsd">
 	<Script file="Core.lua"/>
   
-  <Script file="Caches\BagSync"/>
+  <Script file="Caches\BagSync.lua"/>
 	<!--<Script file="Caches\Armory"/>-->
   <!--<Script file="Caches\DataStore"/>-->
-  <Script file="Caches\Forever"/>
+  <Script file="Caches\Forever.lua"/>
 </Ui>

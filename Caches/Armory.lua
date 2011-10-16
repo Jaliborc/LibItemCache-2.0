@@ -18,7 +18,7 @@ along with LibItemSearch. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local Lib = LibStub('LibItemCache-1.0')
-if not ArmoryDB or not Lib.NewCache then
+if not ArmoryDB or Lib:HasCache() then
   return
 end
 

@@ -21,6 +21,7 @@ local Lib = LibStub:NewLibrary('LibItemCache-1.0', 1)
 if Lib then
   Lib.PLAYER = UnitName('player')
   Lib.REALM = GetRealmName()
+  Lib.Cache = nil
 else
 	return
 end
@@ -66,24 +67,25 @@ end
 
 function Lib:GetBag(player, bag)
   local isCached, isBank = BagType(player, bag)
-  local slot = ContainerIDToInventoryID(bag)
 
   if bag == BACKPACK_CONTAINER or bag == BANK_CONTAINER then
-    return bag, 0, nil, GetContainerNumSlots(bag), isCached
+    return bag, 0, nil, nil, GetContainerNumSlots(bag), isCached
   else
+    local slot = ContainerIDToInventoryID(bag)
+
     if isCached then
       local data, size = self.Cache:GetBag(player or self.PLAYER, bag, slot, isBank)
 
       if data and size then
         local _, link, _, _,_,_,_,_,_, icon = GetItemInfo(data)
-        return link, 0, icon, size, true
+        return link, 0, icon, slot, size, true
       end
     else
       local link = GetInventoryItemLink('player', slot)
       local count = GetInventoryItemCount('player', slot)
       local icon = GetInventoryItemTexture('player', slot)
 
-      return link, count, icon, GetContainerNumSlots(bag)
+      return link, count, icon, slot, GetContainerNumSlots(bag)
     end
   end
 end
@@ -124,4 +126,8 @@ function Lib:NewCache()
   self.Cache = {}
   self.NewCache = nil
   return self.Cache, self.REALM
+end
+
+function Lib:HasCache()
+  return self.Cache
 end
