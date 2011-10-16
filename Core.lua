@@ -68,19 +68,23 @@ function Lib:GetBag(player, bag)
   local isCached, isBank = BagType(player, bag)
   local slot = ContainerIDToInventoryID(bag)
 
-  if isCached then
-    local data, size = self.Cache:GetBag(player or self.PLAYER, bag, slot, isBank)
-
-    if data and size then
-      local _, link, _, _,_,_,_,_,_, icon = GetItemInfo(data)
-      return link, 0, icon, size, true
-    end
+  if bag == BACKPACK_CONTAINER or bag == BANK_CONTAINER then
+    return bag, 0, nil, GetContainerNumSlots(bag), isCached
   else
-    local link = GetInventoryItemLink('player', slot)
-    local count = GetInventoryItemCount('player', slot)
-    local icon = GetInventoryItemTexture('player', slot)
+    if isCached then
+      local data, size = self.Cache:GetBag(player or self.PLAYER, bag, slot, isBank)
 
-    return link, count, icon, GetContainerNumSlots(bag)
+      if data and size then
+        local _, link, _, _,_,_,_,_,_, icon = GetItemInfo(data)
+        return link, 0, icon, size, true
+      end
+    else
+      local link = GetInventoryItemLink('player', slot)
+      local count = GetInventoryItemCount('player', slot)
+      local icon = GetInventoryItemTexture('player', slot)
+
+      return link, count, icon, GetContainerNumSlots(bag)
+    end
   end
 end
 
