@@ -18,12 +18,12 @@ along with LibItemSearch. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local Lib = LibStub('LibItemCache-1.0')
-if not Forever or Lib:HasCache() then
+if not BagBrother or Lib:HasCache() then
   return
 end
 
 local Cache, Realm = Lib:NewCache()
-local Realm = ForeverCache[Realm]
+local Realm = BrotherBags[Realm]
 
 
 --[[ Items ]]--
