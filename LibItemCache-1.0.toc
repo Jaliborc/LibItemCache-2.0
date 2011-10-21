@@ -1,1 +1,1 @@
-## Interface: 40200## Title: |cffff9933LibItemCache-1.0|r## Notes:## Author: Jaliborc (João Cardoso)## X-Category: Library## X-Licence: GNU General Public License - Version 3## OptionalDeps: LibStub, Forever, BagSync, Armory, DataStore_Containers, DataStore_InventoryLibItemCache.xml
+## Interface: 40200## Title: LibItemCache## Notes:## Author: Jaliborc (João Cardoso)## X-Category: Library## X-Licence: GNU General Public License - Version 3## OptionalDeps: LibStub, BagBrother, BagSync, Armory, DataStore_Containers, DataStore_InventoryLibItemCache.xml

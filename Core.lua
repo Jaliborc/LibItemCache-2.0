@@ -26,21 +26,14 @@ else
 	return
 end
 
-local function CachedPlayer(player)
-  return player and player ~= Lib.PLAYER
-end
-
 local function BagType(player, bag)
   local isBank = bag > NUM_BAG_SLOTS or bag == BANK_CONTAINER
-  local isCached = CachedPlayer(player) or isBank and not Lib.atBank
+  local isCached = Lib:CachedPlayer(player) or isBank and not Lib.atBank
   return isCached, isBank
 end
 
 
 --[[ Items ]]--
-
--- GetItemCount(player, item)       TESTAR
--- GetMoney(player)                 TESTAR
 
 function Lib:GetItem(player, bag, slot)
   local isCached, isBank = BagType(player, bag)
@@ -55,7 +48,7 @@ function Lib:GetItem(player, bag, slot)
       if isVault then
         return link, icon, nil, nil, nil, true
       else
-        return icon, count or 1, nil, quality, nil, nil, link, true
+        return icon, tonumber(count) or 1, nil, quality, nil, nil, link, true
       end
     end
   elseif isVault then
@@ -68,9 +61,7 @@ end
 function Lib:GetBag(player, bag)
   local isCached, isBank = BagType(player, bag)
 
-  if bag == BACKPACK_CONTAINER or bag == BANK_CONTAINER then
-    return bag, 0, nil, nil, GetContainerNumSlots(bag), isCached
-  else
+  if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
     local slot = ContainerIDToInventoryID(bag)
 
     if isCached then
@@ -78,7 +69,7 @@ function Lib:GetBag(player, bag)
 
       if data and size then
         local _, link, _, _,_,_,_,_,_, icon = GetItemInfo(data)
-        return link, 0, icon, slot, size, true
+        return link, 0, icon, slot, tonumber(size), true
       end
     else
       local link = GetInventoryItemLink('player', slot)
@@ -88,12 +79,12 @@ function Lib:GetBag(player, bag)
       return link, count, icon, slot, GetContainerNumSlots(bag)
     end
   end
+
+  return nil, 0, nil, nil, GetContainerNumSlots(bag), isCached
 end
 
--- or GetItemIcon(link)?
-
 function Lib:GetItemCount(player, item)
-  if CachedPlayer(player) then
+  if self:CachedPlayer(player) then
     return self.Cache:GetItemCount(player or self.PLAYER, item)
   else
     return GetItemCount(item, true)
@@ -101,7 +92,7 @@ function Lib:GetItemCount(player, item)
 end
 
 function Lib:GetMoney(player)
-  if CachedPlayer(player) then
+  if self:CachedPlayer(player) then
     return self.Cache:GetMoney(player or self.PLAYER), true
   else
     return GetMoney()
@@ -110,6 +101,10 @@ end
 
 
 --[[ Players ]]--
+
+function Lib:CachedPlayer(player)
+  return player and player ~= self.PLAYER
+end
 
 function Lib:IteratePlayers()
   return self.Cache:IteratePlayers()
