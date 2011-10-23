@@ -28,7 +28,7 @@ end
 
 local function BagType(player, bag)
   local isBank = bag > NUM_BAG_SLOTS or bag == BANK_CONTAINER
-  local isCached = Lib:CachedPlayer(player) or isBank and not Lib.atBank
+  local isCached = Lib:PlayerCached(player) or isBank and not Lib.atBank
   return isCached, isBank
 end
 
@@ -84,7 +84,7 @@ function Lib:GetBag(player, bag)
 end
 
 function Lib:GetItemCount(player, item)
-  if self:CachedPlayer(player) then
+  if self:PlayerCached(player) then
     return self.Cache:GetItemCount(player or self.PLAYER, item)
   else
     return GetItemCount(item, true)
@@ -92,7 +92,7 @@ function Lib:GetItemCount(player, item)
 end
 
 function Lib:GetMoney(player)
-  if self:CachedPlayer(player) then
+  if self:PlayerCached(player) then
     return self.Cache:GetMoney(player or self.PLAYER), true
   else
     return GetMoney()
@@ -102,7 +102,7 @@ end
 
 --[[ Players ]]--
 
-function Lib:CachedPlayer(player)
+function Lib:PlayerCached(player)
   return player and player ~= self.PLAYER
 end
 
