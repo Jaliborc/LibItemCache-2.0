@@ -21,7 +21,7 @@ local Lib = LibStub:NewLibrary('LibItemCache-1.0', 1)
 if Lib then
   Lib.PLAYER = UnitName('player')
   Lib.REALM = GetRealmName()
-  Lib.Cache = nil
+  Lib.Cache = {}
 else
 	return
 end
@@ -118,11 +118,10 @@ end
 --[[ Caches ]]--
 
 function Lib:NewCache()
-  self.Cache = {}
   self.NewCache = nil
   return self.Cache, self.REALM
 end
 
 function Lib:HasCache()
-  return self.Cache
+  return not self.NewCache
 end
