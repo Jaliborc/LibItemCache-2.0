@@ -107,6 +107,14 @@ function Lib:PlayerCached(player)
   return player and player ~= self.PLAYER
 end
 
+function Lib:GetPlayer(player)
+  if not self:PlayerCached(player) then
+    return select(2, UnitClass('player')), select(2, UnitRace('player')), UnitSex('player')
+  else
+    return self.Cache:GetPlayer(player)
+  end
+end
+
 function Lib:IteratePlayers()
   return self.Cache:IteratePlayers()
 end

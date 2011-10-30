@@ -65,6 +65,11 @@ end
 
 --[[ Players ]]--
 
+function Cache:GetPlayer(player)
+  player = Realm[player]
+  return  player.class, player.race, player.sex
+end
+
 function Cache:DeletePlayer(player)
   Realm[player] = nil
 end
