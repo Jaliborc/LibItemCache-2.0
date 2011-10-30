@@ -17,11 +17,14 @@ You should have received a copy of the GNU General Public License
 along with LibItemSearch. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 1)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 2)
 if Lib then
-  Lib.PLAYER = UnitName('player')
-  Lib.REALM = GetRealmName()
-  Lib.Cache = {}
+	Lib.__index = function() return Lib.__empty end
+	Lib.__empty = function() end
+	
+	Lib.Cache = setmetatable({}, Lib)
+	Lib.PLAYER = UnitName('player')
+	Lib.REALM = GetRealmName()
 else
 	return
 end
