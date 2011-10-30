@@ -4,6 +4,5 @@
   
   <Script file="Caches\BagSync.lua"/>
 	<!--<Script file="Caches\Armory"/>-->
-  <!--<Script file="Caches\DataStore"/>-->
   <Script file="Caches\BagBrother.lua"/>
 </Ui>

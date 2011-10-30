@@ -43,7 +43,8 @@ function Lib:GetItem(player, bag, slot)
     local data, count = self.Cache:GetItem(player or self.PLAYER, bag, slot, isBank, isVault)
 
     if data then
-      local _, link, quality, _,_,_,_,_,_, icon = GetItemInfo(data)
+      local _, link, quality = GetItemInfo(data)
+      local icon = GetItemIcon(data)
 
       if isVault then
         return link, icon, nil, nil, nil, true
@@ -68,8 +69,8 @@ function Lib:GetBag(player, bag)
       local data, size = self.Cache:GetBag(player or self.PLAYER, bag, slot, isBank)
 
       if data and size then
-        local _, link, _, _,_,_,_,_,_, icon = GetItemInfo(data)
-        return link, 0, icon, slot, tonumber(size), true
+        local _, link = GetItemInfo(data)
+        return link, 0, GetItemIcon(data), slot, tonumber(size), true
       end
     else
       local link = GetInventoryItemLink('player', slot)
