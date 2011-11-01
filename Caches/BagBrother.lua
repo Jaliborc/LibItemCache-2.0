@@ -47,7 +47,7 @@ end
 function Cache:GetItemCount(player, id)
   local i = 0
   for key, value in pairs(Realm[player]) do
-    if key ~= 'money' then
+    if type(value) == 'table' then
       for _, item in pairs(value) do
         if item:match('^(%d+)') == id then
           i = i + 1
