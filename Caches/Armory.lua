@@ -23,32 +23,50 @@ if not ArmoryDB or Lib:HasCache() then
 end
 
 local Cache, Realm = Lib:NewCache()
-local Realm = ArmoryDB[Realm]
+local Profile
+
+local function SelectPlayer (player)
+    Profile = {realm = Realm, character = player, current = Armory:CurrentProfile()}
+
+    if Armory:ProfileExists(Profile) then
+        Armory:SelectProfile(Profile)
+    end
+end
+
+local function RestorePlayer ()
+    if Profile and Profile.current then
+        Armory:SelectProfile(Profile.current)
+    end
+end
 
 
 --[[ Items ]]--
 
-function Cache:GetBag(player, bag, slot)
-  local player = Realm[player]
-  local link = player['InventoryItemLink' .. slot] -- TO ASK: Armory does not save bag id or link
-  local bag = player.Inventory['Container' .. bag]
+function Cache:GetBag (player, bag, slot)
+  SelectPlayer(player)
+  local _, slots = Armory:GetInventoryContainerInfo(bag)
+  local link = Armory:GetInventoryItemLink('player', slot)
 
-  if bag and link then
-    return link, bag.Info.count
-  end
+  RestorePlayer()
+  return link, slots
 end
 
-function Cache:GetItem(player, bag, slot)
-  local bag = Realm[player].Inventory['Container' .. bag]
-  if bag then
-    local item = bag['Link' .. slot]
-    if item then
-      return item['1'], item.count
+function Cache:GetItem (player, bag, slot, isBank)
+  SelectPlayer(player)
+	
+  local _, size = Armory:GetInventoryContainerInfo(bag)
+  for i = 1, size or 0 do
+	local _, count, _, _, _, index = Armory:GetContainerItemInfo(bag, i)
+    if index == slot then
+	  local link = Armory:GetContainerItemLink(bag, i)
+	
+	  RestorePlayer()
+      return link, count
     end
   end
 end
 
-function Cache:GetItemCount(player, id)
+--[[function Cache:GetItemCount (player, id)
   local i = 0
   for bag, contents in pairs(Realm[player].Inventory) do
     for name, data in pairs(contents) do
@@ -59,20 +77,30 @@ function Cache:GetItemCount(player, id)
   end
 
   return i
-end
+end]]--
 
-
-function Cache:GetMoney(player)
-  return Realm[player].Money
+function Cache:GetMoney (player)
+  SelectPlayer(player)
+  local money = Armory:GetMoney()
+  RestorePlayer()
+  return money
 end
 
 
 --[[ Players ]]--
 
-function Cache:IteratePlayers()
-  return pairs(Realm)
+function Cache:GetPlayer (player)
+	SelectPlayer(player)
+    local _, race = Armory:UnitRace()
+	local class, sex = Armory:UnitClass(), Armory:UnitSex()
+	RestorePlayer()
+	return class, race, sex
 end
 
-function Cache:DeletePlayer(player)
-  Realm[player] = nil
+function Cache:IteratePlayers ()
+  return ArmoryDB[Realm]
+end
+
+function Cache:DeletePlayer (player)
+  ArmoryDB[Realm][player] = nil
 end

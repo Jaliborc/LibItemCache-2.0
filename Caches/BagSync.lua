@@ -24,6 +24,7 @@ end
 
 local Cache, Realm = Lib:NewCache()
 local Realm = BagSyncDB[Realm]
+local CLASS = 'class:0:0'
 local MONEY = 'gold:0:0'
 
 
@@ -46,18 +47,6 @@ function Cache:GetItem(player, bag, slot, isBank)
   end
 end
 
-function Cache:GetNumItems(player, item)
-  local i = 0
-  for id, data in pairs(Realm[player]) do
-    if not id:sub(1, 2) == 'bd' and not id == MONEY then
-      if data:match('^(%d)') == item then
-        i = i + 1
-      end
-    end
-  end
-  return i
-end
-
 function Cache:GetMoney(player)
   return Realm[player][MONEY]
 end
@@ -65,10 +54,14 @@ end
 
 --[[ Players ]]--
 
+function Cache:GetPlayer(player)
+  return Realm[player][CLASS]
+end
+
 function Cache:DeletePlayer(player)
   Realm[player] = nil
 end
 
 function Cache:IteratePlayers()
-  return pairs(Realm)
+  return Realm
 end

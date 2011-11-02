@@ -44,18 +44,17 @@ function Cache:GetItem(player, bag, slot)
   end
 end
 
-function Cache:GetItemCount(player, id)
-  local i = 0
-  for key, value in pairs(Realm[player]) do
-    if type(value) == 'table' then
-      for _, item in pairs(value) do
-        if item:match('^(%d+)') == id then
-          i = i + 1
-        end
-      end
-    end
-  end
-  return i
+function Cache:GetItemCount(player, bag, id)
+	bag = Realm[player][bag]
+	if bag then
+	  local i = 0
+	  for _,item in pairs(bag) do
+	    if item:match('^(%d+)') == id then
+		  i = i + 1
+		end
+	  end
+	  return i
+	end
 end
 
 function Cache:GetMoney(player)
@@ -67,7 +66,7 @@ end
 
 function Cache:GetPlayer(player)
   player = Realm[player]
-  return  player.class, player.race, player.sex
+  return player.class, player.race, player.sex
 end
 
 function Cache:DeletePlayer(player)
@@ -75,5 +74,5 @@ function Cache:DeletePlayer(player)
 end
 
 function Cache:IteratePlayers()
-  return pairs(Realm)
+  return Realm
 end

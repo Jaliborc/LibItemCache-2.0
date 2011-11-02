@@ -91,7 +91,9 @@ function Lib:GetItemCount(player, item)
   if self:PlayerCached(player) then
     return self.Cache:GetItemCount(player or self.PLAYER, item)
   else
-    return GetItemCount(item, true)
+    local bags = GetItemCount(item)
+    local total = GetItemCount(item, true)
+    return nil, bags, total - bags
   end
 end
 
@@ -119,7 +121,15 @@ function Lib:GetPlayer(player)
 end
 
 function Lib:IteratePlayers()
-  return self.Cache:IteratePlayers()
+  local players = self.Cache:IteratePlayers()
+  local list = {}
+
+  for player in pairs(players) do
+    tinsert(list, player)
+  end
+
+  sort(list)
+  return pairs(list)
 end
 
 function Lib:DeletePlayer(...)
