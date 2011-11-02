@@ -135,16 +135,16 @@ end
 
 function Lib:IteratePlayers()
   if not self.players then
-    local players = self.Cache:GetPlayers()
     self.players = {}
 
-    for player in pairs(players) do
-      tinsert(self.players, player)
+    if self:HasCache() then
+      for player in pairs(self.Cache:GetPlayers()) do
+        tinsert(self.players, player)
+      end
+
+      sort(self.players)
     end
-
-    sort(self.players)
   end
-
   return pairs(self.players)
 end
 
