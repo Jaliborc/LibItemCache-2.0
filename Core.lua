@@ -17,30 +17,35 @@ You should have received a copy of the GNU General Public License
 along with LibItemCache. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 3)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 4)
 if Lib then
-	Lib.__index = function() return Lib.__empty end
-	Lib.__empty = function() end
-	
-	Lib.Cache = setmetatable({}, Lib)
-	Lib.PLAYER = UnitName('player')
-	Lib.REALM = GetRealmName()
-else
-	return
+  if not Lib[0] then
+    local frame = CreateFrame('Frame')
+    setmetatable(Lib, getmetatable(frame))
+    Lib[0] = frame[0] -- nice hack, turns the lib into a frame. MUHAHAHAHA! I'm evil.
+  end
+
+  Lib.__index = function() return Lib.__empty end
+  Lib.__empty = function() end -- another hack, stops errors if there is no cache
+
+  Lib.Cache = setmetatable({}, Lib)
+  Lib.PLAYER = UnitName('player')
+  Lib.REALM = GetRealmName()
 end
 
 local function BagType(player, bag)
   local isBank = bag > NUM_BAG_SLOTS or bag == BANK_CONTAINER
-  local isCached = Lib:PlayerCached(player) or isBank and not Lib.atBank
-  return isCached, isBank
+  local isVault = bag == 'vault'
+
+  local isCached = Lib:PlayerCached(player) or isBank and not Lib.atBank or isVault and not Lib.atVault
+  return isCached, isBank, isVault
 end
 
 
 --[[ Items ]]--
 
 function Lib:GetItem(player, bag, slot)
-  local isCached, isBank = BagType(player, bag)
-  local isVault = bag == 'vault'
+  local isCached, isBank, isVault = BagType(player, bag)
 
   if isCached then
     local data, count = self.Cache:GetItem(player or self.PLAYER, bag, slot, isBank, isVault)
@@ -159,3 +164,24 @@ end
 function Lib:HasCache()
   return not self.NewCache
 end
+
+
+--[[ Events ]]--
+
+Lib:SetScript('OnEvent', function(_, event)
+	if event == 'BANKFRAME_OPENED' then
+		Lib.atBank = true
+	elseif event == 'BANKFRAME_CLOSED' then
+		Lib.atBank = nil
+	elseif event == 'VOID_STORAGE_OPEN' then
+		Lib.atVault = true
+	else
+		Lib.atVault = nil
+	end
+end)
+
+Lib:RegisterEvent('BANKFRAME_OPENED')
+Lib:RegisterEvent('BANKFRAME_CLOSED')
+
+Lib:RegisterEvent('VOID_STORAGE_OPEN')
+Lib:RegisterEvent('VOID_STORAGE_CLOSE')
