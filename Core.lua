@@ -121,19 +121,23 @@ function Lib:GetPlayer(player)
 end
 
 function Lib:IteratePlayers()
-  local players = self.Cache:IteratePlayers()
-  local list = {}
+  if not self.players then
+    local players = self.Cache:IteratePlayers()
+    self.players = {}
 
-  for player in pairs(players) do
-    tinsert(list, player)
+    for player in pairs(players) do
+      tinsert(self.players, player)
+    end
+
+    sort(self.players)
   end
 
-  sort(list)
-  return pairs(list)
+  return pairs(self.players)
 end
 
 function Lib:DeletePlayer(...)
   self.Cache:DeletePlayer(...)
+  self.players = nil
 end
 
 

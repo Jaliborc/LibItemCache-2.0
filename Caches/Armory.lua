@@ -66,19 +66,6 @@ function Cache:GetItem (player, bag, slot, isBank)
   end
 end
 
---[[function Cache:GetItemCount (player, id)
-  local i = 0
-  for bag, contents in pairs(Realm[player].Inventory) do
-    for name, data in pairs(contents) do
-      if name:sub(0,4) == 'Link' and data['1']:sub(17, -1):match('^(%d+)') == id then
-        i = i + 1
-      end
-    end
-  end
-
-  return i
-end]]--
-
 function Cache:GetMoney (player)
   SelectPlayer(player)
   local money = Armory:GetMoney()
