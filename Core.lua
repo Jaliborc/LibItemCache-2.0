@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with LibItemSearch. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 2)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 3)
 if Lib then
 	Lib.__index = function() return Lib.__empty end
 	Lib.__empty = function() end
