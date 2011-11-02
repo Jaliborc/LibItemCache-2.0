@@ -87,13 +87,21 @@ function Lib:GetBag(player, bag)
   return nil, 0, nil, nil, GetContainerNumSlots(bag), isCached
 end
 
-function Lib:GetItemCount(player, item)
+function Lib:GetItemCounts(player, id)
   if self:PlayerCached(player) then
-    return self.Cache:GetItemCount(player or self.PLAYER, item)
+    return self.Cache:GetItemCounts(player or self.PLAYER, id)
   else
-    local bags = GetItemCount(item)
-    local total = GetItemCount(item, true)
-    return nil, bags, total - bags
+	local item, equip = tonumber(id), 0
+    local total = GetItemCount(id, true)
+	local bags = GetItemCount(id)
+
+	for i = 1, INVSLOT_LAST_EQUIPPED do
+      if GetInventoryItemID('player', i) == id then
+		equip = equip + 1
+	  end
+    end
+
+    return equip, bags - equip, total - bags
   end
 end
 
@@ -122,7 +130,7 @@ end
 
 function Lib:IteratePlayers()
   if not self.players then
-    local players = self.Cache:IteratePlayers()
+    local players = self.Cache:GetPlayers()
     self.players = {}
 
     for player in pairs(players) do

@@ -44,21 +44,40 @@ function Cache:GetItem(player, bag, slot)
   end
 end
 
-function Cache:GetItemCount(player, bag, id)
-	bag = Realm[player][bag]
-	if bag then
-	  local i = 0
-	  for _,item in pairs(bag) do
-	    if item:match('^(%d+)') == id then
-		  i = i + 1
-		end
-	  end
-	  return i
-	end
-end
-
 function Cache:GetMoney(player)
   return Realm[player].money
+end
+
+
+--[[ Item Counts ]]--
+
+function Cache:GetItemCounts(player, id)
+	local bags = 0
+	for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+		bags = bags + self:GetItemCount(player, i, id)
+	end
+	
+	local bank = 0
+	for i = 1 + NUM_BAG_SLOTS, NUM_BANKBAGSLOTS + NUM_BAG_SLOTS do
+      bank = bank + self:GetItemCount(player, i, id)
+    end
+	
+	return self:GetItemCount(player, 'equip', id), bags, bank + self:GetItemCount(player, BANK_CONTAINER, id)
+end
+
+function Cache:GetItemCount(player, bag, id)
+	local bag = Realm[player][bag]
+	local i = 0
+	
+	if bag then
+	  for _,item in pairs(bag) do
+	    if item:match('^(%d+)') == id then
+		  i = i + tonumber(item:match(';(%d+)$') or 1)
+		end
+	  end
+	end
+	
+	return i
 end
 
 
@@ -73,6 +92,6 @@ function Cache:DeletePlayer(player)
   Realm[player] = nil
 end
 
-function Cache:IteratePlayers()
+function Cache:GetPlayers()
   return Realm
 end

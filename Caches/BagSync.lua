@@ -62,6 +62,6 @@ function Cache:DeletePlayer(player)
   Realm[player] = nil
 end
 
-function Cache:IteratePlayers()
+function Cache:GetPlayers()
   return Realm
 end

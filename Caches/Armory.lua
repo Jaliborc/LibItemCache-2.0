@@ -23,9 +23,9 @@ if not ArmoryDB or Lib:HasCache() then
 end
 
 local Cache, Realm = Lib:NewCache()
-local Profile
+local Players, Profile = ArmoryDB[Realm]
 
-local function SelectPlayer (player)
+local function SelectPlayer(player)
     Profile = {realm = Realm, character = player, current = Armory:CurrentProfile()}
 
     if Armory:ProfileExists(Profile) then
@@ -33,7 +33,7 @@ local function SelectPlayer (player)
     end
 end
 
-local function RestorePlayer ()
+local function RestorePlayer()
     if Profile and Profile.current then
         Armory:SelectProfile(Profile.current)
     end
@@ -42,7 +42,7 @@ end
 
 --[[ Items ]]--
 
-function Cache:GetBag (player, bag, slot)
+function Cache:GetBag(player, bag, slot)
   SelectPlayer(player)
   local _, slots = Armory:GetInventoryContainerInfo(bag)
   local link = Armory:GetInventoryItemLink('player', slot)
@@ -51,7 +51,7 @@ function Cache:GetBag (player, bag, slot)
   return link, slots
 end
 
-function Cache:GetItem (player, bag, slot, isBank)
+function Cache:GetItem(player, bag, slot, isBank)
   SelectPlayer(player)
 	
   local _, size = Armory:GetInventoryContainerInfo(bag)
@@ -66,7 +66,7 @@ function Cache:GetItem (player, bag, slot, isBank)
   end
 end
 
-function Cache:GetMoney (player)
+function Cache:GetMoney(player)
   SelectPlayer(player)
   local money = Armory:GetMoney()
   RestorePlayer()
@@ -76,7 +76,7 @@ end
 
 --[[ Players ]]--
 
-function Cache:GetPlayer (player)
+function Cache:GetPlayer(player)
 	SelectPlayer(player)
     local _, race = Armory:UnitRace()
 	local class, sex = Armory:UnitClass(), Armory:UnitSex()
@@ -84,10 +84,10 @@ function Cache:GetPlayer (player)
 	return class, race, sex
 end
 
-function Cache:IteratePlayers ()
-  return ArmoryDB[Realm]
+function Cache:DeletePlayer(player)
+  Players[player] = nil
 end
 
-function Cache:DeletePlayer (player)
-  ArmoryDB[Realm][player] = nil
+function Cache:GetPlayers()
+  return Players
 end
