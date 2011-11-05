@@ -30,7 +30,7 @@ local MONEY = 'gold:0:0'
 
 --[[ Items ]]--
 
-function Cache:GetBag(player, bag, _, isBank)
+function Cache:GetBag (player, bag, _, isBank)
   local type = 'bd:' .. (isBank and 'bank:' or 'bag:')
   local bag = Realm[player][type .. bag]
   if bag then
@@ -39,7 +39,7 @@ function Cache:GetBag(player, bag, _, isBank)
   end
 end
 
-function Cache:GetItem(player, bag, slot, isBank)
+function Cache:GetItem (player, bag, slot, isBank)
   local type = isBank and 'bank:' or 'bag:'
   local item = Realm[player][type .. bag .. ':' .. slot]
   if item then
@@ -47,21 +47,21 @@ function Cache:GetItem(player, bag, slot, isBank)
   end
 end
 
-function Cache:GetMoney(player)
+function Cache:GetMoney (player)
   return Realm[player][MONEY]
 end
 
 
 --[[ Players ]]--
 
-function Cache:GetPlayer(player)
+function Cache:GetPlayer (player)
   return Realm[player][CLASS]
 end
 
-function Cache:DeletePlayer(player)
+function Cache:DeletePlayer (player)
   Realm[player] = nil
 end
 
-function Cache:GetPlayers()
+function Cache:GetPlayers ()
   return Realm
 end

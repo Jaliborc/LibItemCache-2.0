@@ -28,14 +28,14 @@ local Realm = BrotherBags[Realm]
 
 --[[ Items ]]--
 
-function Cache:GetBag(player, _, slot)
+function Cache:GetBag (player, _, slot)
   local bag = Realm[player].equip[slot]
   if bag then
     return strsplit(';', bag)
   end
 end
 
-function Cache:GetItem(player, bag, slot)
+function Cache:GetItem (player, bag, slot)
   local bag = Realm[player][bag]
   local item = bag and bag[slot]
   if item then
@@ -44,14 +44,14 @@ function Cache:GetItem(player, bag, slot)
   end
 end
 
-function Cache:GetMoney(player)
+function Cache:GetMoney (player)
   return Realm[player].money
 end
 
 
 --[[ Item Counts ]]--
 
-function Cache:GetItemCounts(player, id)
+function Cache:GetItemCounts (player, id)
 	local bags = 0
 	for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
 		bags = bags + self:GetItemCount(player, i, id)
@@ -65,7 +65,7 @@ function Cache:GetItemCounts(player, id)
 	return self:GetItemCount(player, 'equip', id), bags, bank + self:GetItemCount(player, BANK_CONTAINER, id)
 end
 
-function Cache:GetItemCount(player, bag, id)
+function Cache:GetItemCount (player, bag, id)
 	local bag = Realm[player][bag]
 	local i = 0
 	
@@ -83,15 +83,15 @@ end
 
 --[[ Players ]]--
 
-function Cache:GetPlayer(player)
+function Cache:GetPlayer (player)
   player = Realm[player]
   return player.class, player.race, player.sex
 end
 
-function Cache:DeletePlayer(player)
+function Cache:DeletePlayer (player)
   Realm[player] = nil
 end
 
-function Cache:GetPlayers()
+function Cache:GetPlayers ()
   return Realm
 end

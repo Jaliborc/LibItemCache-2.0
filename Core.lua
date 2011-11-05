@@ -17,178 +17,173 @@ You should have received a copy of the GNU General Public License
 along with LibItemCache. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 5)
-if Lib then
-  if not Lib[0] then
-    local frame = CreateFrame('Frame')
-    setmetatable(Lib, getmetatable(frame))
-    Lib[0] = frame[0] -- nice hack, turns the lib into a frame. MUHAHAHAHA! I'm evil.
-  end
-
-  Lib.__index = function() return Lib.__empty end
-  Lib.__empty = function() end -- another hack, stops errors if there is no cache
-
-  Lib.Cache = setmetatable({}, Lib)
-  Lib.PLAYER = UnitName('player')
-  Lib.REALM = GetRealmName()
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 6)
+if not Lib then
+	return
 end
 
-local function BagType(player, bag)
-  local isBank = bag > NUM_BAG_SLOTS or bag == BANK_CONTAINER
-  local isVault = bag == 'vault'
+local Cache = function(method, ...)
+	if Lib.Cache[method] then
+		return Lib.Cache[method](Lib.Cache, ...)
+	end
+end
 
-  local isCached = Lib:PlayerCached(player) or isBank and not Lib.atBank or isVault and not Lib.atVault
-  return isCached, isBank, isVault
+LibStub('AceEvent-3.0'):Embed(Lib)
+Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.atBank = true end)
+Lib:RegisterEvent('BANKFRAME_CLOSED', function() Lib.atBank = nil end)
+Lib:RegisterEvent('VOID_STORAGE_OPEN', function() Lib.atVault = true end)
+Lib:RegisterEvent('VOID_STORAGE_CLOSE', function() Lib.atVault = nil end)
+
+Lib.PLAYER = UnitName('player')
+Lib.REALM = GetRealmName()
+Lib.Cache = {}
+
+
+--[[ Bags ]]--
+
+function Lib:GetBagInfo (player, bag)
+	local isCached, isBank = self:GetBagType(player, bag)
+
+ 	if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
+		local slot = ContainerIDToInventoryID(bag)
+
+   		if isCached then
+			local data, size = Cache('GetBag', player or self.PLAYER, bag, slot, isBank)
+
+			if data and size then
+				local _, link = GetItemInfo(data)
+				return link, 0, GetItemIcon(data), slot, tonumber(size), true
+			end
+		else
+			local link = GetInventoryItemLink('player', slot)
+			local count = GetInventoryItemCount('player', slot)
+			local icon = GetInventoryItemTexture('player', slot)
+
+			return link, count, icon, slot, GetContainerNumSlots(bag)
+		end
+	end
+
+	return nil, 0, nil, nil, GetContainerNumSlots(bag), isCached
+end
+
+function Lib:GetBagType(player, bag)
+	local isVault = bag == 'vault'
+	local isBank = not isVault and (bag == BANK_CONTAINER or bag > NUM_BAG_SLOTS)
+
+	local isCached = self:IsPlayerCached(player) or (isBank and not self.atBank) or (isVault and not self.atVault)
+	return isCached, isBank, isVault
 end
 
 
 --[[ Items ]]--
 
-function Lib:GetItem(player, bag, slot)
-  local isCached, isBank, isVault = BagType(player, bag)
+function Lib:GetItemInfo (player, bag, slot)
+	local isCached, isBank, isVault = self:GetBagType(player, bag)
 
-  if isCached then
-    local data, count = self.Cache:GetItem(player or self.PLAYER, bag, slot, isBank, isVault)
+	if isCached then
+		local data, count = Cache('GetItem', player, bag, slot, isBank, isVault)
 
-    if data then
-      local _, link, quality = GetItemInfo(data)
-      local icon = GetItemIcon(data)
+		if data then
+			local _, link, quality = GetItemInfo(data)
+			local icon = GetItemIcon(data)
 
-      if isVault then
-        return link, icon, nil, nil, nil, true
-      else
-        return icon, tonumber(count) or 1, nil, quality, nil, nil, link, true
-      end
-    end
-  elseif isVault then
-    return GetVoidItemInfo(slot)
-  else
-	local icon, count, locked, quality, readable, lootable, link = GetContainerItemInfo(bag, slot)
-	if link and quality < 0 then -- GetContainerItemInfo does not return a quality value for all items
-		quality = select(3, GetItemInfo(link)) 
-	end
+			if isVault then
+				return link, icon, nil, nil, nil, true
+			else
+				return icon, tonumber(count) or 1, nil, quality, nil, nil, link, true
+			end
+		end
+		
+	elseif isVault then
+		return GetVoidItemInfo(slot)
+	else
+		local icon, count, locked, quality, readable, lootable, link = GetContainerItemInfo(bag, slot)
+		if link and quality < 0 then -- GetContainerItemInfo does not return a quality value for all items
+			quality = select(3, GetItemInfo(link)) 
+		end
 	
-    return icon, count, locked, quality, readable, lootable, link
-  end
+		return icon, count, locked, quality, readable, lootable, link
+	end
 end
 
-function Lib:GetBag(player, bag)
-  local isCached, isBank = BagType(player, bag)
+function Lib:GetItemCounts (player, id)
+	if self:IsPlayerCached(player) then
+		return Cache('GetItemCounts', player, id)
+	else
+		local item, equip = tonumber(id), 0
+		local total = GetItemCount(id, true)
+		local bags = GetItemCount(id)
 
-  if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
-    local slot = ContainerIDToInventoryID(bag)
+		for i = 1, INVSLOT_LAST_EQUIPPED do
+			if GetInventoryItemID('player', i) == id then
+				equip = equip + 1
+			end
+		end
 
-    if isCached then
-      local data, size = self.Cache:GetBag(player or self.PLAYER, bag, slot, isBank)
-
-      if data and size then
-        local _, link = GetItemInfo(data)
-        return link, 0, GetItemIcon(data), slot, tonumber(size), true
-      end
-    else
-      local link = GetInventoryItemLink('player', slot)
-      local count = GetInventoryItemCount('player', slot)
-      local icon = GetInventoryItemTexture('player', slot)
-
-      return link, count, icon, slot, GetContainerNumSlots(bag)
-    end
-  end
-
-  return nil, 0, nil, nil, GetContainerNumSlots(bag), isCached
+		return equip, bags - equip, total - bags
+	end
 end
 
-function Lib:GetItemCounts(player, id)
-  if self:PlayerCached(player) then
-    return self.Cache:GetItemCounts(player or self.PLAYER, id)
-  else
-	local item, equip = tonumber(id), 0
-    local total = GetItemCount(id, true)
-	local bags = GetItemCount(id)
 
-	for i = 1, INVSLOT_LAST_EQUIPPED do
-      if GetInventoryItemID('player', i) == id then
-		equip = equip + 1
-	  end
-    end
+--[[ Money ]]--
 
-    return equip, bags - equip, total - bags
-  end
-end
-
-function Lib:GetMoney(player)
-  if self:PlayerCached(player) then
-    return self.Cache:GetMoney(player or self.PLAYER), true
-  else
-    return GetMoney()
-  end
+function Lib:GetMoney (player)
+	if self:IsPlayerCached(player) then
+		return Cache('GetMoney', player), true
+	else
+		return GetMoney()
+	end
 end
 
 
 --[[ Players ]]--
 
-function Lib:PlayerCached(player)
-  return player and player ~= self.PLAYER
+function Lib:GetPlayerInfo (player)
+	if self:IsPlayerCached(player) then
+		return Cache('GetPlayer', player)
+	else
+		local _,class = UnitClass('player')
+		local _,race = UnitRace('player')
+		local sex = UnitSex('player')
+		
+		return class, race, sex
+	end
 end
 
-function Lib:GetPlayer(player)
-  if not self:PlayerCached(player) then
-    return select(2, UnitClass('player')), select(2, UnitRace('player')), UnitSex('player')
-  else
-    return self.Cache:GetPlayer(player)
-  end
+function Lib:IsPlayerCached (player)
+	return player and player ~= self.PLAYER
 end
 
-function Lib:IteratePlayers()
-  if not self.players then
-    self.players = {}
+function Lib:IteratePlayers ()
+	if not self.players then
+		self.players = {}
 
-    local list = self.Cache:GetPlayers()
-    if list then
-      for player in pairs(list) do
-        tinsert(self.players, player)
-      end
+		local list = Cache('GetPlayers')
+		if list then
+			for player in pairs(list) do
+				tinsert(self.players, player)
+			end
 
-      sort(self.players)
-    end
-  end
+			sort(self.players)
+		end
+	end
 
-  return pairs(self.players)
+	return pairs(self.players)
 end
 
-function Lib:DeletePlayer(...)
-  self.Cache:DeletePlayer(...)
-  self.players = nil
+function Lib:DeletePlayer (player)
+	Cache('DeletePlayer', player)
+	self.players = nil
 end
 
 
 --[[ Caches ]]--
 
 function Lib:NewCache()
-  self.NewCache = nil
-  return self.Cache, self.REALM
+	self.NewCache = nil
+	return self.Cache, self.REALM
 end
 
 function Lib:HasCache()
-  return not self.NewCache
+	return not self.NewCache
 end
-
-
---[[ Events ]]--
-
-Lib:SetScript('OnEvent', function(_, event)
-	if event == 'BANKFRAME_OPENED' then
-		Lib.atBank = true
-	elseif event == 'BANKFRAME_CLOSED' then
-		Lib.atBank = nil
-	elseif event == 'VOID_STORAGE_OPEN' then
-		Lib.atVault = true
-	else
-		Lib.atVault = nil
-	end
-end)
-
-Lib:RegisterEvent('BANKFRAME_OPENED')
-Lib:RegisterEvent('BANKFRAME_CLOSED')
-
-Lib:RegisterEvent('VOID_STORAGE_OPEN')
-Lib:RegisterEvent('VOID_STORAGE_CLOSE')
