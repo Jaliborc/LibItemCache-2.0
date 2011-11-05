@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with LibItemCache. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 4)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 5)
 if Lib then
   if not Lib[0] then
     local frame = CreateFrame('Frame')
@@ -63,7 +63,12 @@ function Lib:GetItem(player, bag, slot)
   elseif isVault then
     return GetVoidItemInfo(slot)
   else
-    return GetContainerItemInfo(bag, slot)
+	local icon, count, locked, quality, readable, lootable, link = GetContainerItemInfo(bag, slot)
+	if link and quality < 0 then -- GetContainerItemInfo does not return a quality value for all items
+		quality = select(3, GetItemInfo(link)) 
+	end
+	
+    return icon, count, locked, quality, readable, lootable, link
   end
 end
 
@@ -137,14 +142,16 @@ function Lib:IteratePlayers()
   if not self.players then
     self.players = {}
 
-    if self:HasCache() then
-      for player in pairs(self.Cache:GetPlayers()) do
+    local list = self.Cache:GetPlayers()
+    if list then
+      for player in pairs(list) do
         tinsert(self.players, player)
       end
 
       sort(self.players)
     end
   end
+
   return pairs(self.players)
 end
 
