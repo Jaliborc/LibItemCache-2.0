@@ -62,17 +62,21 @@ function Cache:GetItemCounts (player, id)
       bank = bank + self:GetItemCount(player, i, id)
     end
 	
-	return self:GetItemCount(player, 'equip', id), bags, bank + self:GetItemCount(player, BANK_CONTAINER, id)
+	return self:GetItemCount(player, 'equip', id, true), bags, bank + self:GetItemCount(player, BANK_CONTAINER, id)
 end
 
-function Cache:GetItemCount (player, bag, id)
+function Cache:GetItemCount (player, bag, id, unique)
 	local bag = Realm[player][bag]
 	local i = 0
 	
 	if bag then
 	  for _,item in pairs(bag) do
 	    if item:match('^(%d+)') == id then
-		  i = i + tonumber(item:match(';(%d+)$') or 1)
+			if not unique then
+		  		i = i + tonumber(item:match(';(%d+)$') or 1)
+			else
+				i = i + 1
+			end
 		end
 	  end
 	end
