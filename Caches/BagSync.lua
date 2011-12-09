@@ -24,8 +24,8 @@ end
 
 local Cache, Realm = Lib:NewCache()
 local Realm = BagSyncDB[Realm]
-local CLASS = 'class:0:0'
-local MONEY = 'gold:0:0'
+local CLASS = 'class'
+local MONEY = 'gold'
 
 
 --[[ Items ]]--
