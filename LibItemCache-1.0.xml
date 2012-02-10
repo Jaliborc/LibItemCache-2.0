@@ -2,7 +2,7 @@
 ..\FrameXML\UI.xsd">
 	<Script file="Core.lua"/>
   
-  <Script file="Caches\Armory.lua"/>
-  <Script file="Caches\BagSync.lua"/>
   <Script file="Caches\BagBrother.lua"/>
+  <Script file="Caches\BagSync.lua"/>
+  <Script file="Caches\Armory.lua"/>
 </Ui>
