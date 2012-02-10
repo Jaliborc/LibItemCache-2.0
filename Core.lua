@@ -110,7 +110,7 @@ function Lib:GetItemCounts (player, id)
 	if self:IsPlayerCached(player) then
 		return Cache('GetItemCounts', player, id)
 	else
-		local item, equip = tonumber(id), 0
+		local id, equip = tonumber(id), 0
 		local total = GetItemCount(id, true)
 		local bags = GetItemCount(id)
 
