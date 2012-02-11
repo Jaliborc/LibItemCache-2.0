@@ -129,9 +129,9 @@ end
 
 function Lib:GetMoney (player)
 	if self:IsPlayerCached(player) then
-		return Cache('GetMoney', player), true
+		return Cache('GetMoney', player) or 0, true
 	else
-		return GetMoney()
+		return GetMoney() or 0
 	end
 end
 
