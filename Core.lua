@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with LibItemCache. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 7)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 8)
 if not Lib then
 	return
 end
@@ -49,11 +49,14 @@ function Lib:GetBagInfo (player, bag)
 
    		if isCached then
 			local data, size = Cache('GetBag', player or self.PLAYER, bag, slot, isBank)
+			local link, icon, _
 
-			if data and size then
-				local _, link = GetItemInfo(data)
-				return link, 0, GetItemIcon(data), slot, tonumber(size), true
+			if data then
+				_, link = GetItemInfo(data)
+				icon = GetItemIcon(data)
 			end
+			
+			return link, 0, icon, slot, tonumber(size) or 0, true
 		else
 			local link = GetInventoryItemLink('player', slot)
 			local count = GetInventoryItemCount('player', slot)
@@ -82,16 +85,17 @@ function Lib:GetItemInfo (player, bag, slot)
 
 	if isCached then
 		local data, count = Cache('GetItem', player, bag, slot, isBank, isVault)
+		local link, quality, icon, _
 
 		if data then
-			local _, link, quality = GetItemInfo(data)
-			local icon = GetItemIcon(data)
-
-			if isVault then
-				return link, icon, nil, nil, nil, true
-			else
-				return icon, tonumber(count) or 1, nil, quality, nil, nil, link, true
-			end
+			_, link, quality = GetItemInfo(data)
+			icon = GetItemIcon(data)
+		end
+		
+		if isVault then
+			return link, icon, nil, nil, nil, true
+		else
+			return icon, tonumber(count) or 1, nil, quality, nil, nil, link, true
 		end
 		
 	elseif isVault then
