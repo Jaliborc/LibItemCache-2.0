@@ -17,16 +17,22 @@ You should have received a copy of the GNU General Public License
 along with LibItemCache. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 8)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 10)
 if not Lib then
 	return
 end
+
+local PetLinkFormat = '|c%s|Hbattlepet:%s|h[%s]|h|r'
+local PetDataFormat = '^' .. strrep('%d+:', 6) .. '%d+$'
 
 local Cache = function(method, ...)
 	if Lib.Cache[method] then
 		return Lib.Cache[method](Lib.Cache, ...)
 	end
 end
+
+
+--[[ Startup ]]--
 
 LibStub('AceEvent-3.0'):Embed(Lib)
 Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.atBank = true end)
@@ -49,12 +55,7 @@ function Lib:GetBagInfo (player, bag)
 
    		if isCached then
 			local data, size = Cache('GetBag', player or self.PLAYER, bag, slot, isBank)
-			local link, icon, _
-
-			if data then
-				_, link = GetItemInfo(data)
-				icon = GetItemIcon(data)
-			end
+			local icon, link = self:ProcessLink(data)
 			
 			return link, 0, icon, slot, tonumber(size) or 0, true
 		else
@@ -85,12 +86,7 @@ function Lib:GetItemInfo (player, bag, slot)
 
 	if isCached then
 		local data, count = Cache('GetItem', player, bag, slot, isBank, isVault)
-		local link, quality, icon, _
-
-		if data then
-			_, link, quality = GetItemInfo(data)
-			icon = GetItemIcon(data)
-		end
+		local icon, link, quality = self:ProcessLink(data)
 		
 		if isVault then
 			return link, icon, nil, nil, nil, true
@@ -102,7 +98,7 @@ function Lib:GetItemInfo (player, bag, slot)
 		return GetVoidItemInfo(slot)
 	else
 		local icon, count, locked, quality, readable, lootable, link = GetContainerItemInfo(bag, slot)
-		if link and quality < 0 then -- GetContainerItemInfo does not return a quality value for all items
+		if link and quality < 0 then
 			quality = select(3, GetItemInfo(link)) 
 		end
 	
@@ -127,6 +123,36 @@ function Lib:GetItemCounts (player, id)
 
 		return equip, bags - equip, total - bags, vault or 0
 	end
+end
+
+
+--[[ Links ]]--
+
+function Lib:ProcessLink (link)
+	if not link then
+		return
+	end
+	
+	if link:find(PetDataFormat) then
+		return self:ProcessPetLink(link)
+	else
+		return self:ProcessItemLink(link)
+	end
+end
+
+function Lib:ProcessPetLink (partial)
+	local id, _, quality = strsplit(':', partial)
+	local name, icon = C_PetJournal.GetPetInfoBySpeciesID(id)
+	
+	local color = select(4, GetItemQualityColor(quality))
+	local link = PetLinkFormat:format(color, partial, name)
+	
+	return icon, link, tonumber(quality)
+end
+
+function Lib:ProcessItemLink (partial)
+	local _, link, quality = GetItemInfo('item:' .. partial)
+	return GetItemIcon(partial), link, quality
 end
 
 
