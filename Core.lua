@@ -136,7 +136,7 @@ function Lib:ProcessLink (link)
 	if link:find(PetDataFormat) then
 		return self:ProcessPetLink(link)
 	else
-		return self:ProcessItemLink(link)
+		return self:ProcessItemLink('item:' .. link)
 	end
 end
 
@@ -151,7 +151,7 @@ function Lib:ProcessPetLink (partial)
 end
 
 function Lib:ProcessItemLink (partial)
-	local _, link, quality = GetItemInfo('item:' .. partial)
+	local _, link, quality = GetItemInfo(partial)
 	return GetItemIcon(partial), link, quality
 end
 
