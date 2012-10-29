@@ -84,9 +84,9 @@ function Cache:GetItemCount (player, bag, id, unique)
 	
 	if bag then
 		for _,item in pairs(bag) do
-			if item:match(ItemID) == id then
+			if strmatch(item, ItemID) == id then
 				if not unique then
-					i = i + tonumber(item:match(ItemCount) or 1)
+					i = i + tonumber(strmatch(item, ItemCount) or 1)
 				else
 					i = i + 1
 				end

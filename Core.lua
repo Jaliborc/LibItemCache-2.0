@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with LibItemCache. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 10)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 11)
 if not Lib then
 	return
 end
