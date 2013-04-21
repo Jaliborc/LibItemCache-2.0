@@ -1,8 +1,8 @@
-local WoWTest = LibStub('WoWTest')
+local WoWTest = LibStub('WoWTest-1.0')
 local Lib = LibStub('LibItemCache-1.0')
 
 local AreEqual, Replace = WoWTest.AreEqual, WoWTest.Replace
-local Tests = WoWTest:New('GET_ITEM_INFO_RECEIVED')
+local Tests = WoWTest:New()
 
 
 --[[ Links ]]--
@@ -23,10 +23,10 @@ function Tests:ProcessItemLink()
 end
 
 function Tests:ProcessPetLink()
-	local results = {Lib:ProcessLink('236:1:2:157:157:10:10')}
+	local results = {Lib:ProcessLink('236:1:2:157:10:10:0')}
 	local expected = {
 		strupper('Interface\\Icons\\Ability_Mount_Raptor.blp'),
-		'|cff1eff00|Hbattlepet:236:1:2:157:157:10:10|h[Obsidian Hatchling]|h|r',
+		'|cff1eff00|Hbattlepet:236:1:2:157:10:10:0x0|h[Obsidian Hatchling]|h|r',
 		2
 	}
 

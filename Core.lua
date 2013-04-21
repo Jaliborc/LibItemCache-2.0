@@ -20,7 +20,7 @@ if not Lib then
 	return
 end
 
-local PetLinkFormat = '|c%s|Hbattlepet:%s|h[%s]|h|r'
+local PetLinkFormat = '|c%s|Hbattlepet:%sx0|h[%s]|h|r'
 local PetDataFormat = '^' .. strrep('%d+:', 6) .. '%d+$'
 
 local Cache = function(method, ...)
@@ -134,7 +134,7 @@ function Lib:ProcessLink (link)
 	if link:find(PetDataFormat) then
 		return self:ProcessPetLink(link)
 	else
-		return self:ProcessItemLink('item:' .. link)
+		return self:ProcessItemLink(link)
 	end
 end
 
@@ -149,7 +149,7 @@ function Lib:ProcessPetLink (partial)
 end
 
 function Lib:ProcessItemLink (partial)
-	local _, link, quality = GetItemInfo(partial)
+	local _, link, quality = GetItemInfo('item:' .. partial)
 	return GetItemIcon(partial), link, quality
 end
 

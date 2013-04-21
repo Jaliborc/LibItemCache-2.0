@@ -1,4 +1,4 @@
-local WoWTest = LibStub('WoWTest')
+local WoWTest = LibStub('WoWTest-1.0')
 local Cache = LibStub('LibItemCache-1.0').Cache
 
 local AreEqual, Replace = WoWTest.AreEqual, WoWTest.Replace
