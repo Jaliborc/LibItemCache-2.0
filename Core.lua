@@ -150,7 +150,7 @@ end
 
 function Lib:ProcessItemLink (partial)
 	local _, link, quality = GetItemInfo('item:' .. partial)
-	return GetItemIcon(partial), link, quality
+	return GetItemIcon(link), link, quality
 end
 
 

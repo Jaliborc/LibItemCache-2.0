@@ -18,7 +18,7 @@ function Tests:ProcessItemLink()
 		'|cffff8000|Hitem:49623:0:0:0:0:0:0:0:29:0:0|h[Shadowmourne]|h|r',
 		5
 	}
-	
+
 	AreEqual(expected, results)
 end
 
