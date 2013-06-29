@@ -1,8 +1,6 @@
-local WoWTest = LibStub('WoWTest-1.0')
 local Cache = LibStub('LibItemCache-1.0').Cache
-
-local AreEqual, Replace = WoWTest.AreEqual, WoWTest.Replace
-local Tests = WoWTest:New()
+local AreEqual, Replace = WoWUnit.AreEqual, WoWUnit.Replace
+local Tests = WoWUnit('ItemCache.BagBrother')
 
 
 --[[ GetItem ]]--

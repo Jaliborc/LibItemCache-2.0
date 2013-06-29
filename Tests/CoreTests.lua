@@ -1,8 +1,6 @@
-local WoWTest = LibStub('WoWTest-1.0')
 local Lib = LibStub('LibItemCache-1.0')
-
-local AreEqual, Replace = WoWTest.AreEqual, WoWTest.Replace
-local Tests = WoWTest:New()
+local AreEqual, Replace = WoWUnit.AreEqual, WoWUnit.Replace
+local Tests = WoWUnit('ItemCache')
 
 
 --[[ Links ]]--
