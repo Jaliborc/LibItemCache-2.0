@@ -1,6 +1,6 @@
 local Lib = LibStub('LibItemCache-1.0')
-local AreEqual, Replace = WoWUnit.AreEqual, WoWUnit.Replace
-local Tests = WoWUnit('ItemCache')
+local AreEqual, IsTrue, Replace = WoWUnit.AreEqual, WoWUnit.IsTrue, WoWUnit.Replace
+local Tests = WoWUnit('ItemCache', 'PLAYER_LOGIN', 'GET_ITEM_INFO_RECEIVED')
 
 
 --[[ Links ]]--
@@ -10,14 +10,11 @@ function Tests:ProcessNothing()
 end
 
 function Tests:ProcessItemLink()
-	local results = {Lib:ProcessLink('49623')}
-	local expected = {
-		'Interface\\Icons\\inv_axe_113',
-		'|cffff8000|Hitem:49623:0:0:0:0:0:0:0:29:0:0|h[Shadowmourne]|h|r',
-		5
-	}
+	local icon, link, quality = Lib:ProcessLink('49623')
 
-	AreEqual(expected, results)
+	AreEqual(icon, 'Interface\\Icons\\inv_axe_113')
+	IsTrue(link:find('|cffff8000|Hitem:49623:0:0:0:0:0:0:0:%d+:0:0|h%[Shadowmourne%]|h|r'))
+	AreEqual(quality, 5)
 end
 
 function Tests:ProcessPetLink()
