@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 11)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 12)
 if not Lib then
 	return
 end
@@ -97,7 +97,7 @@ function Lib:GetItemInfo (player, bag, slot)
 	else
 		local icon, count, locked, quality, readable, lootable, link = GetContainerItemInfo(bag, slot)
 		if link and quality < 0 then
-			quality = select(3, GetItemInfo(link)) 
+			quality = self:GetQuality(link)
 		end
 	
 		return icon, count, locked, quality, readable, lootable, link
@@ -151,6 +151,14 @@ end
 function Lib:ProcessItemLink (partial)
 	local _, link, quality = GetItemInfo('item:' .. partial)
 	return GetItemIcon(link), link, quality
+end
+
+function Lib:GetQuality (link)
+	if link:find('|Hbattlepet') then
+		return tonumber(link:match('%d+:%d+:(%d+)'))
+	else
+		return select(3, GetItemInfo(link))
+	end
 end
 
 
