@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 12)
+local Lib = LibStub:NewLibrary('LibItemCache-1.0', 14)
 if not Lib then
 	return
 end
@@ -68,7 +68,7 @@ function Lib:GetBagInfo (player, bag)
 	return nil, 0, nil, nil, GetContainerNumSlots(bag), isCached
 end
 
-function Lib:GetBagType(player, bag)
+function Lib:GetBagType (player, bag)
 	local isVault = bag == 'vault'
 	local isBank = not isVault and (bag == BANK_CONTAINER or bag > NUM_BAG_SLOTS)
 
@@ -84,7 +84,7 @@ function Lib:GetItemInfo (player, bag, slot)
 
 	if isCached then
 		local data, count = Cache('GetItem', player, bag, slot, isBank, isVault)
-		local icon, link, quality = self:ProcessLink(data)
+		local icon, link, quality = self:RestoreLink(data)
 		
 		if isVault then
 			return link, icon, nil, nil, nil, true
@@ -97,12 +97,21 @@ function Lib:GetItemInfo (player, bag, slot)
 	else
 		local icon, count, locked, quality, readable, lootable, link = GetContainerItemInfo(bag, slot)
 		if link and quality < 0 then
-			quality = self:GetQuality(link)
+			quality = self:GetItemQuality(link)
 		end
 	
 		return icon, count, locked, quality, readable, lootable, link
 	end
 end
+
+function Lib:GetItemQuality (link)
+	if link:find('battlepet') then
+		return tonumber(link:match('%d+:%d+:(%d+)'))
+	else
+		return select(3, GetItemInfo(link))
+	end
+end
+
 
 function Lib:GetItemCounts (player, id)
 	if self:IsPlayerCached(player) then
@@ -124,21 +133,19 @@ function Lib:GetItemCounts (player, id)
 end
 
 
---[[ Links ]]--
+--[[ Partials ]]--
 
-function Lib:ProcessLink (link)
-	if not link then
-		return
-	end
-	
-	if link:find(PetDataFormat) then
-		return self:ProcessPetLink(link)
-	else
-		return self:ProcessItemLink(link)
+function Lib:RestoreLink (partial)
+	if partial then
+		if partial:find(PetDataFormat) then
+			return self:RestorePetLink(partial)
+		else
+			return self:RestoreItemLink(partial)
+		end
 	end
 end
 
-function Lib:ProcessPetLink (partial)
+function Lib:RestorePetLink (partial)
 	local id, _, quality = strsplit(':', partial)
 	local name, icon = C_PetJournal.GetPetInfoBySpeciesID(id)
 	
@@ -148,17 +155,9 @@ function Lib:ProcessPetLink (partial)
 	return icon, link, tonumber(quality)
 end
 
-function Lib:ProcessItemLink (partial)
+function Lib:RestoreItemLink (partial)
 	local _, link, quality = GetItemInfo('item:' .. partial)
 	return GetItemIcon(link), link, quality
-end
-
-function Lib:GetQuality (link)
-	if link:find('|Hbattlepet') then
-		return tonumber(link:match('%d+:%d+:(%d+)'))
-	else
-		return select(3, GetItemInfo(link))
-	end
 end
 
 

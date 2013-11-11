@@ -8,20 +8,20 @@ local Hatchling = '|cff1eff00|Hbattlepet:236:1:2:157:10:10:0x0|h[Obsidian Hatchl
 
 --[[ Links ]]--
 
-function Tests:ProcessNothing()
-	AreEqual(nil, Lib:ProcessLink(nil))
+function Tests:RestoreNothing()
+	AreEqual(nil, Lib:RestoreLink(nil))
 end
 
-function Tests:ProcessItemLink()
-	local icon, link, quality = Lib:ProcessLink('49623')
+function Tests:RestoreItemLink()
+	local icon, link, quality = Lib:RestoreLink('49623')
 
 	AreEqual(icon, 'Interface\\Icons\\inv_axe_113')
 	IsTrue(link:find(Shadowmourne))
 	AreEqual(quality, 5)
 end
 
-function Tests:ProcessPetLink()
-	local results = {Lib:ProcessLink('236:1:2:157:10:10:0')}
+function Tests:RestorePetLink()
+	local results = {Lib:RestoreLink('236:1:2:157:10:10:0')}
 	local expected = {
 		strupper('Interface\\Icons\\Ability_Mount_Raptor.blp'),
 		Hatchling,
@@ -31,7 +31,7 @@ function Tests:ProcessPetLink()
 	AreEqual(expected, results)
 end
 
-function Tests:GetQuality()
-	AreEqual(5, Lib:GetQuality(Shadowmourne))
-	AreEqual(2, Lib:GetQuality(Hatchling))
+function Tests:GetItemQuality()
+	AreEqual(5, Lib:GetItemQuality(Shadowmourne))
+	AreEqual(2, Lib:GetItemQuality(Hatchling))
 end
