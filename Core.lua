@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.0', 14)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 1)
 if not Lib then
 	return
 end
@@ -43,17 +43,117 @@ Lib.REALM = GetRealmName()
 Lib.Cache = {}
 
 
+--[[ Realms ]]--
+
+do 
+	local region = GetCVar('portal')
+	if region == 'us' then
+		region = {
+			{"Balnazzar", "Warsong"},
+			{"Gurubashi", "Hakkar", "Daggerspine", "Aegwynn"},
+			{"Dalvengyr", "Dark Iron"},
+			{"Garithos", "Chromaggus"},
+			{"Onyxia", "Burning Blade"},
+			{"Gul'dan", "Black Dragonflight", "Skullcrusher"},
+			{"Auchindoun", "Laughing Skull"},
+			{"Dethecus", "Detheroc"},
+			{"Dunemaul", "Maiev", "Boulderfist", "Bloodscalp", "Stonemaul"},
+			{"Rivendare", "Firetree"},
+			{"Blackwing Lair", "Detheroc", "Dethecus"},
+			{"Anub'arak", "Chromaggus", "Garithos"},
+			{"Malorne", "Drak'Tharon", "Firetree", "Rivendare",
+			{"Blood Furnace", "Mannoroth"},
+			{"Nesingwary", "Vek'nilash"},
+			["Aggramar", "Fizzcrank"},
+			{"Echo Isles", "Draenor"},
+			{"Scilla", "Ursin"}
+		}
+	elseif region == 'eu' then
+		region = {
+			{"Hakkar", "Emeriss"},
+			{"Taerar", "Echsenkessel"},
+			{"Theradras", "Dethecus"}
+		}
+	else
+		region = {}
+	end
+
+	Lib.REALMS = (function()
+			for _, realms in ipairs(region) do
+				for _, realm in ipairs(realms) do 
+					if realm == Lib.REALM then
+						return realms
+					end
+				end
+			end
+		end)() or {Lib.REALM}
+end
+
+
+--[[ Players ]]--
+
+function Lib:GetPlayerInfo(player)
+	if self:IsPlayerCached(player) then
+		return Cache('GetPlayer', self:GetPlayerAddress(player))
+	else
+		local _,class = UnitClass('player')
+		local _,race = UnitRace('player')
+		local sex = UnitSex('player')
+		
+		return class, race, sex
+	end
+end
+
+function Lib:GetPlayerMoney(player)
+	if self:IsPlayerCached(player) then
+		return Cache('GetMoney', self:GetPlayerAddress(player)) or 0, true
+	else
+		return GetMoney() or 0
+	end
+end
+
+function Lib:GetPlayerAddress(player)
+	local player, realm = strsplit(' - ', player or self.PLAYER)
+	return realm or Lib.REALM, player
+end
+
+function Lib:IsPlayerCached(player)
+	return player and player ~= self.PLAYER
+end
+
+function Lib:IteratePlayers()
+	local players = {}
+
+	for i, realm in ipairs(self.REALMS) do
+		local list = Cache('GetPlayers', realm) or {}
+		local suffix = realm == Lib.REALM and '' or (' - ' .. realm)
+
+		for player in pairs(list) do
+			tinsert(players, player .. suffix)
+		end
+	end
+
+	sort(players)
+	return pairs(players)
+end
+
+function Lib:DeletePlayer(player)
+	Cache('DeletePlayer', self:GetPlayerAddress(player))
+end
+
+
 --[[ Bags ]]--
 
-function Lib:GetBagInfo (player, bag)
+function Lib:GetBagInfo(player, bag)
 	local isCached, isBank = self:GetBagType(player, bag)
 
  	if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
 		local slot = ContainerIDToInventoryID(bag)
 
    		if isCached then
-			local data, size = Cache('GetBag', player or self.PLAYER, bag, slot, isBank)
-			local icon, link = self:ProcessLink(data)
+   			local realm, player = self:GetPlayerAddress(player)
+			local data, size = Cache('GetBag', realm, player, bag, slot, isBank)
+			local icon, link = self:RestoreLink(data)
 			
 			return link, 0, icon, slot, tonumber(size) or 0, true
 		else
@@ -68,22 +168,23 @@ function Lib:GetBagInfo (player, bag)
 	return nil, 0, nil, nil, GetContainerNumSlots(bag), isCached
 end
 
-function Lib:GetBagType (player, bag)
+function Lib:GetBagType(player, bag)
 	local isVault = bag == 'vault'
-	local isBank = not isVault and (bag == BANK_CONTAINER or bag > NUM_BAG_SLOTS)
-
+	local isBank = bag == BANK_CONTAINER or bag > NUM_BAG_SLOTS
 	local isCached = self:IsPlayerCached(player) or (isBank and not self.atBank) or (isVault and not self.atVault)
+
 	return isCached, isBank, isVault
 end
 
 
 --[[ Items ]]--
 
-function Lib:GetItemInfo (player, bag, slot)
+function Lib:GetItemInfo(player, bag, slot)
 	local isCached, isBank, isVault = self:GetBagType(player, bag)
 
 	if isCached then
-		local data, count = Cache('GetItem', player, bag, slot, isBank, isVault)
+		local realm, player = self:GetPlayerAddress(player)
+		local data, count = Cache('GetItem', realm, player, bag, slot, isBank, isVault)
 		local icon, link, quality = self:RestoreLink(data)
 		
 		if isVault then
@@ -104,7 +205,7 @@ function Lib:GetItemInfo (player, bag, slot)
 	end
 end
 
-function Lib:GetItemQuality (link)
+function Lib:GetItemQuality(link)
 	if link:find('battlepet') then
 		return tonumber(link:match('%d+:%d+:(%d+)'))
 	else
@@ -113,11 +214,13 @@ function Lib:GetItemQuality (link)
 end
 
 
-function Lib:GetItemCounts (player, id)
+function Lib:GetItemCounts(player, id)
+	local realm, name = self:GetPlayerAddress(player)
+
 	if self:IsPlayerCached(player) then
-		return Cache('GetItemCounts', player, id)
+		return Cache('GetItemCounts', realm, name, id)
 	else
-		local vault = select(4, Cache('GetItemCounts', player, id))
+		local vault = select(4, Cache('GetItemCounts', realm, name, id))
 		local id, equip = tonumber(id), 0
 		local total = GetItemCount(id, true)
 		local bags = GetItemCount(id)
@@ -133,9 +236,9 @@ function Lib:GetItemCounts (player, id)
 end
 
 
---[[ Partials ]]--
+--[[ Partial Links ]]--
 
-function Lib:RestoreLink (partial)
+function Lib:RestoreLink(partial)
 	if partial then
 		if partial:find(PetDataFormat) then
 			return self:RestorePetLink(partial)
@@ -145,71 +248,19 @@ function Lib:RestoreLink (partial)
 	end
 end
 
-function Lib:RestorePetLink (partial)
+function Lib:RestorePetLink(partial)
 	local id, _, quality = strsplit(':', partial)
 	local name, icon = C_PetJournal.GetPetInfoBySpeciesID(id)
 	
 	local color = select(4, GetItemQualityColor(quality))
 	local link = PetLinkFormat:format(color, partial, name)
 	
-	return icon, link, tonumber(quality)
+	return link, icon, tonumber(quality)
 end
 
-function Lib:RestoreItemLink (partial)
+function Lib:RestoreItemLink(partial)
 	local _, link, quality = GetItemInfo('item:' .. partial)
-	return GetItemIcon(link), link, quality
-end
-
-
---[[ Money ]]--
-
-function Lib:GetMoney (player)
-	if self:IsPlayerCached(player) then
-		return Cache('GetMoney', player) or 0, true
-	else
-		return GetMoney() or 0
-	end
-end
-
-
---[[ Players ]]--
-
-function Lib:GetPlayerInfo (player)
-	if self:IsPlayerCached(player) then
-		return Cache('GetPlayer', player)
-	else
-		local _,class = UnitClass('player')
-		local _,race = UnitRace('player')
-		local sex = UnitSex('player')
-		
-		return class, race, sex
-	end
-end
-
-function Lib:IsPlayerCached (player)
-	return player and player ~= self.PLAYER
-end
-
-function Lib:IteratePlayers ()
-	if not self.players then
-		self.players = {}
-
-		local list = Cache('GetPlayers')
-		if list then
-			for player in pairs(list) do
-				tinsert(self.players, player)
-			end
-
-			sort(self.players)
-		end
-	end
-
-	return pairs(self.players)
-end
-
-function Lib:DeletePlayer (player)
-	Cache('DeletePlayer', player)
-	self.players = nil
+	return link, GetItemIcon(link), quality
 end
 
 
@@ -217,7 +268,7 @@ end
 
 function Lib:NewCache()
 	self.NewCache = nil
-	return self.Cache, self.REALM
+	return self.Cache
 end
 
 function Lib:HasCache()

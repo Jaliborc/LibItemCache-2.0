@@ -15,75 +15,68 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub('LibItemCache-1.0')
+local Lib = LibStub('LibItemCache-1.1')
 if not BagBrother or Lib:HasCache() then
 	return
 end
 
 local Cache = Lib:NewCache()
-Cache.Realm = BagBrother.Realm
 
-local Bank = BANK_CONTAINER
-local Backpack = BACKPACK_CONTAINER
-local LastBagSlot = NUM_BAG_SLOTS
-
-local LastBankSlot = LastBagSlot + NUM_BANKBAGSLOTS
-local FirstBankSlot = LastBagSlot + 1
-
-local ItemCount = ';(%d+)$'
-local ItemID = '^(%d+)'
+local LAST_BANK_SLOT = NUM_BAG_SLOTS + NUM_BANKBAGSLOTS
+local FIRST_BANK_SLOT = NUM_BAG_SLOTS + 1
+local ITEM_COUNT = ';(%d+)$'
+local ITEM_ID = '^(%d+)'
 
 
 --[[ Items ]]--
 
-function Cache:GetBag (player, _, slot)
-	local bag = self.Realm[player].equip[slot]
+function Cache:GetBag(realm, player, _, slot)
+	local bag = BrotherBags[realm][player].equip[slot]
 	if bag then
 		return strsplit(';', bag)
 	end
 end
 
-function Cache:GetItem (player, bag, slot)
-	local bag = self.Realm[player][bag]
+function Cache:GetItem(realm, player, bag, slot)
+	local bag = BrotherBags[realm][player]
 	local item = bag and bag[slot]
-	
 	if item then
 		return strsplit(';', item)
 	end
 end
 
-function Cache:GetMoney (player)
-	return self.Realm[player].money
+function Cache:GetMoney(realm, player)
+	return BrotherBags[realm][player].money
 end
 
 
 --[[ Item Counts ]]--
 
-function Cache:GetItemCounts (player, id)
-	local equipment = self:GetItemCount(player, 'equip', id, true)
-	local vault = self:GetItemCount(player, 'vault', id, true)
-	local bank = self:GetItemCount(player, Bank, id)
+function Cache:GetItemCounts(realm, player, id)
+	local equipment = self:GetItemCount(realm, player, 'equip', id, true)
+	local vault = self:GetItemCount(realm, player, 'vault', id, true)
+	local bank = self:GetItemCount(realm, player, BANK_CONTAINER, id)
 	local bags = 0
 	
-	for i = Backpack, LastBagSlot do
+	for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
 		bags = bags + self:GetItemCount(player, i, id)
 	end
 	
-	for i = FirstBankSlot, LastBankSlot do
+	for i = FIRST_BANK_SLOT, LAST_BANK_SLOT do
 		bank = bank + self:GetItemCount(player, i, id)
     end
 	
 	return equipment, bags, bank, vault
 end
 
-function Cache:GetItemCount (player, bag, id, unique)
-	local bag = self.Realm[player][bag]
+function Cache:GetItemCount(realm, player, bag, id, unique)
+	local bag = BrotherBags[realm][player][bag]
 	local i = 0
 	
 	if bag then
 		for _,item in pairs(bag) do
-			if strmatch(item, ItemID) == id then
-				i = i + (not unique and tonumber(strmatch(item, ItemCount)) or 1)
+			if strmatch(item, ITEM_ID) == id then
+				i = i + (not unique and tonumber(strmatch(item, ITEM_COUNT)) or 1)
 			end
 		end
 	end
@@ -94,15 +87,15 @@ end
 
 --[[ Players ]]--
 
-function Cache:GetPlayer (player)
-	player = self.Realm[player]
+function Cache:GetPlayer(realm, player)
+	player = BrotherBags[realm][player]
 	return player.class, player.race, player.sex
 end
 
-function Cache:DeletePlayer (player)
-	self.Realm[player] = nil
+function Cache:DeletePlayer(realm, player)
+	BrotherBags[realm][player] = nil
 end
 
-function Cache:GetPlayers ()
-	return self.Realm
+function Cache:GetPlayers(realm)
+	return BrotherBags[realm]
 end
