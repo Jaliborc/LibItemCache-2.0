@@ -30,7 +30,7 @@ function Tests:RestoreNothing()
 end
 
 function Tests:RestoreItemLink()
-	local icon, link, quality = Lib:RestoreLink('49623')
+	local link, icon, quality = Lib:RestoreLink('49623')
 
 	AreEqual(icon, 'Interface\\Icons\\inv_axe_113')
 	IsTrue(link:find(Shadowmourne))
@@ -40,8 +40,8 @@ end
 function Tests:RestorePetLink()
 	local results = {Lib:RestoreLink('236:1:2:157:10:10:0')}
 	local expected = {
-		strupper('Interface\\Icons\\Ability_Mount_Raptor.blp'),
 		Hatchling,
+		strupper('Interface\\Icons\\Ability_Mount_Raptor.blp'),
 		2
 	}
 

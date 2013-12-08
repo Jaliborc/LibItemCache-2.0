@@ -49,3 +49,38 @@ function Tests:ItemStack()
 	
 	AreEqual(expected, results)
 end
+
+
+--[[ Other Gets ]]--
+
+function Tests:GetBag()
+	Replace('BrotherBags', {
+		Realm = {
+			Player = {
+				equip = {
+					[10] = '123;20',
+					[5] = '444;5'
+				}
+			}
+		}
+	})
+	
+	AreEqual({'123', '20'}, {Cache:GetBag('Realm', 'Player', 1, 10)})
+	AreEqual({'444', '5'}, {Cache:GetBag('Realm', 'Player', -1, 5)})
+end
+
+function Tests:GetItemCounts()
+	Replace('BrotherBags', {
+		Realm = {
+			Player = {
+				['equip'] = {'10;2'},
+				['vault'] = {'10;2', '10'},
+
+				[1] = {'10;4', '200', '10'},
+				[-1] = {'10;5', '200', '10'},
+			}
+		}
+	})
+	
+	AreEqual({1, 5, 6, 2}, {Cache:GetItemCounts('Realm', 'Player', '10')})
+end

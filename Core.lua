@@ -61,10 +61,10 @@ do
 			{"Rivendare", "Firetree"},
 			{"Blackwing Lair", "Detheroc", "Dethecus"},
 			{"Anub'arak", "Chromaggus", "Garithos"},
-			{"Malorne", "Drak'Tharon", "Firetree", "Rivendare",
+			{"Malorne", "Drak'Tharon", "Firetree", "Rivendare"},
 			{"Blood Furnace", "Mannoroth"},
 			{"Nesingwary", "Vek'nilash"},
-			["Aggramar", "Fizzcrank"},
+			{"Aggramar", "Fizzcrank"},
 			{"Echo Isles", "Draenor"},
 			{"Scilla", "Ursin"}
 		}
@@ -153,7 +153,7 @@ function Lib:GetBagInfo(player, bag)
    		if isCached then
    			local realm, player = self:GetPlayerAddress(player)
 			local data, size = Cache('GetBag', realm, player, bag, slot, isBank)
-			local icon, link = self:RestoreLink(data)
+			local link, icon = self:RestoreLink(data)
 			
 			return link, 0, icon, slot, tonumber(size) or 0, true
 		else
@@ -185,7 +185,7 @@ function Lib:GetItemInfo(player, bag, slot)
 	if isCached then
 		local realm, player = self:GetPlayerAddress(player)
 		local data, count = Cache('GetItem', realm, player, bag, slot, isBank, isVault)
-		local icon, link, quality = self:RestoreLink(data)
+		local link, icon, quality = self:RestoreLink(data)
 		
 		if isVault then
 			return link, icon, nil, nil, nil, true
