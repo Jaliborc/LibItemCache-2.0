@@ -52,3 +52,15 @@ function Tests:GetItemQuality()
 	AreEqual(5, Lib:GetItemQuality(Shadowmourne))
 	AreEqual(2, Lib:GetItemQuality(Hatchling))
 end
+
+
+--[[ Bag Types ]]--
+
+function Tests:GetBagType()
+	AreEqual({false, false, false}, {Lib:GetBagType(nil, 1)})
+	AreEqual({true, false, false}, {Lib:GetBagType('X', 1)})
+
+	AreEqual({true, true, false}, {Lib:GetBagType('X', BANK_CONTAINER)})
+	AreEqual({true, true, false}, {Lib:GetBagType('X', 6)})
+	AreEqual({true, false, true}, {Lib:GetBagType('X', 'vault')})
+end

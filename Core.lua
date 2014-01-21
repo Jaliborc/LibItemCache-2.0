@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 1)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 2)
 if not Lib then
 	return
 end
@@ -170,7 +170,7 @@ end
 
 function Lib:GetBagType(player, bag)
 	local isVault = bag == 'vault'
-	local isBank = bag == BANK_CONTAINER or bag > NUM_BAG_SLOTS
+	local isBank = bag == BANK_CONTAINER or type(bag) == 'number' and bag > NUM_BAG_SLOTS
 	local isCached = self:IsPlayerCached(player) or (isBank and not self.atBank) or (isVault and not self.atVault)
 
 	return isCached, isBank, isVault
