@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 3)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 4)
 if not Lib then
 	return
 end
@@ -46,7 +46,7 @@ Lib.Cache = {}
 --[[ Realms ]]--
 
 do 
-	local region = GetCVar('portal'):lower()
+	local region = (GetCVar('realmList') or ''):match('^(%a+)%.')
 	if region == 'us' then
 		region = {
 			{"Balnazzar", "Warsong"},
