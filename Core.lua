@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 4)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 5)
 if not Lib then
 	return
 end
@@ -53,7 +53,7 @@ do
 			{"Gurubashi", "Hakkar", "Daggerspine", "Aegwynn"},
 			{"Dalvengyr", "Dark Iron"},
 			{"Garithos", "Chromaggus"},
-			{"Onyxia", "Burning Blade"},
+			{"Onyxia", "Burning Blade", "Lightning's Blade"},
 			{"Gul'dan", "Black Dragonflight", "Skullcrusher"},
 			{"Auchindoun", "Laughing Skull"},
 			{"Dethecus", "Detheroc"},
