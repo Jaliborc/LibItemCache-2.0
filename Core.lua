@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 5)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 6)
 if not Lib then
 	return
 end
@@ -112,8 +112,16 @@ function Lib:GetPlayerMoney(player)
 	end
 end
 
+function Lib:GetPlayerGuild(player)
+	if self:IsPlayerCached(player) then
+		return Cache('GetGuild', self:GetPlayerAddress(player))
+	else
+		return GetGuildInfo('player')
+	end
+end
+
 function Lib:GetPlayerAddress(player)
-	local player, _,_, realm = strsplit(' - ', player or self.PLAYER)
+	local player, realm = strsplit('-', player or self.PLAYER)
 	return realm or Lib.REALM, player
 end
 
@@ -126,9 +134,9 @@ function Lib:IteratePlayers()
 
 	for i, realm in ipairs(self.REALMS) do
 		local list = Cache('GetPlayers', realm) or {}
-		local suffix = realm == Lib.REALM and '' or (' - ' .. realm)
+		local suffix = realm == Lib.REALM and '' or ('-' .. realm)
 
-		for player in pairs(list) do
+		for i, player in pairs(list) do
 			tinsert(players, player .. suffix)
 		end
 	end
@@ -145,14 +153,20 @@ end
 --[[ Bags ]]--
 
 function Lib:GetBagInfo(player, bag)
-	local isCached, isBank = self:GetBagType(player, bag)
+	local isCached, _,_, tab = self:GetBagType(player, bag)
 
- 	if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
+	if tab then
+		if isCached then
+			return Cache('GetBag', realm, player, bag, tab, slot)
+		end
+		return GetGuildBankTabInfo(tab)
+
+	elseif bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
 		local slot = ContainerIDToInventoryID(bag)
 
    		if isCached then
    			local realm, player = self:GetPlayerAddress(player)
-			local data, size = Cache('GetBag', realm, player, bag, slot, isBank)
+			local data, size = Cache('GetBag', realm, player, bag, tab, slot)
 			local link, icon = self:RestoreLink(data)
 			
 			return link, 0, icon, slot, tonumber(size) or 0, true
@@ -169,22 +183,28 @@ function Lib:GetBagInfo(player, bag)
 end
 
 function Lib:GetBagType(player, bag)
-	local isVault = bag == 'vault'
-	local isBank = bag == BANK_CONTAINER or type(bag) == 'number' and bag > NUM_BAG_SLOTS
-	local isCached = self:IsPlayerCached(player) or (isBank and not self.atBank) or (isVault and not self.atVault)
+	local kind = type(bag)
+	local tab = kind == 'string' and tonumber(bag:match('guild(%d+)'))
+	if tab then
+		return not self.atGuild or self:GetPlayerGuild(player) ~= self:GetPlayerGuild(self.PLAYER), nil,nil, tab
+	end
 
-	return isCached, isBank, isVault
+	local vault = bag == 'vault'
+	local bank = bag == BANK_CONTAINER or kind == 'number' and bag > NUM_BAG_SLOTS
+	local cached = self:IsPlayerCached(player) or vault and not self.atVault or bank and not self.atBank
+
+	return cached, bank, vault
 end
 
 
 --[[ Items ]]--
 
 function Lib:GetItemInfo(player, bag, slot)
-	local isCached, isBank, isVault = self:GetBagType(player, bag)
+	local isCached, _, isVault, tab = self:GetBagType(player, bag)
 
 	if isCached then
 		local realm, player = self:GetPlayerAddress(player)
-		local data, count = Cache('GetItem', realm, player, bag, slot, isBank, isVault)
+		local data, count = Cache('GetItem', realm, player, bag, tab, slot)
 		local link, icon, quality = self:RestoreLink(data)
 		
 		if isVault then
@@ -195,6 +215,13 @@ function Lib:GetItemInfo(player, bag, slot)
 		
 	elseif isVault then
 		return GetVoidItemInfo(slot)
+	elseif tab then
+		local link = GetGuildBankItemLink(slot, tab)
+		local icon, count, locked = GetGuildBankItemInfo(slot, tab)
+		local quality = self:GetItemQuality(link)
+
+		return icon, count, locked, quality, nil, nil, link
+
 	else
 		local icon, count, locked, quality, readable, lootable, link = GetContainerItemInfo(bag, slot)
 		if link and quality < 0 then

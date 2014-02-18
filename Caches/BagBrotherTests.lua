@@ -33,7 +33,7 @@ local function MockItemRequest(item)
 		}
 	})
 	
-	return {Cache:GetItem('Realm', 'Player', 1, 5)}
+	return {Cache:GetItem('Realm', 'Player', 1, nil, 5)}
 end
 
 function Tests:SingleItem()
@@ -47,6 +47,20 @@ function Tests:ItemStack()
 	local results = MockItemRequest('3246:5:0;3')
 	local expected = {'3246:5:0', '3'}
 	
+	AreEqual(expected, results)
+end
+
+function Tests:GuildItem()
+	Replace('BrotherBags', {
+		Realm = {
+			['Player'] = {guild = 'Guild'},
+			['Guild*'] = {[3] = {'3246:5:0;3'}}
+		}
+	})
+
+	local results = {Cache:GetItem('Realm', 'Player', 'guild3', 3, 1)}
+	local expected = {'3246:5:0', '3'}
+
 	AreEqual(expected, results)
 end
 
@@ -65,16 +79,17 @@ function Tests:GetBag()
 		}
 	})
 	
-	AreEqual({'123', '20'}, {Cache:GetBag('Realm', 'Player', 1, 10)})
-	AreEqual({'444', '5'}, {Cache:GetBag('Realm', 'Player', -1, 5)})
+	AreEqual({'123', '20'}, {Cache:GetBag('Realm', 'Player', 1, nil, 10)})
+	AreEqual({'444', '5'}, {Cache:GetBag('Realm', 'Player', -1, nil, 5)})
 end
 
 function Tests:GetItemCounts()
 	Replace('BrotherBags', {
 		Realm = {
 			Player = {
-				['equip'] = {'10;2'},
-				['vault'] = {'10;2', '10'},
+				equip = {'10;2'},
+				vault = {'10;2', '10'},
+				guild = 'Guild',
 
 				[1] = {'10;4', '200', '10'},
 				[-1] = {'10;5', '200', '10'},

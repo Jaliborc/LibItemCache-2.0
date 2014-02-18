@@ -57,10 +57,19 @@ end
 --[[ Bag Types ]]--
 
 function Tests:GetBagType()
-	AreEqual({false, false, false}, {Lib:GetBagType(nil, 1)})
-	AreEqual({true, false, false}, {Lib:GetBagType('X', 1)})
+	AreEqual({nil, nil, nil, nil}, {Lib:GetBagType(nil, 1)})
+	AreEqual({true, nil, nil, nil}, {Lib:GetBagType('X', 1)})
 
-	AreEqual({true, true, false}, {Lib:GetBagType('X', BANK_CONTAINER)})
-	AreEqual({true, true, false}, {Lib:GetBagType('X', 6)})
-	AreEqual({true, false, true}, {Lib:GetBagType('X', 'vault')})
+	AreEqual({true, true, nil, nil, nil}, {Lib:GetBagType('X', BANK_CONTAINER)})
+	AreEqual({true, true, nil, nil}, {Lib:GetBagType('X', 6)})
+	AreEqual({true, nil, true, nil}, {Lib:GetBagType('X', 'vault')})
+	AreEqual({true, nil, nil, 3}, {Lib:GetBagType(nil, 'guild3')})
+end
+
+
+--[[ Players ]]--
+
+function Tests:GetPlayerInfo()
+	Replace(Lib.Cache, 'GetPlayer', function(self, realm, name) return realm, name, 1 end)
+	AreEqual({'Realm', 'Player', 1}, {Lib:GetPlayerInfo('Player - Realm')})
 end

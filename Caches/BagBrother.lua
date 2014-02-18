@@ -21,7 +21,6 @@ if not BagBrother or Lib:HasCache() then
 end
 
 local Cache = Lib:NewCache()
-
 local LAST_BANK_SLOT = NUM_BAG_SLOTS + NUM_BANKBAGSLOTS
 local FIRST_BANK_SLOT = NUM_BAG_SLOTS + 1
 local ITEM_COUNT = ';(%d+)$'
@@ -30,23 +29,28 @@ local ITEM_ID = '^(%d+)'
 
 --[[ Items ]]--
 
-function Cache:GetBag(realm, player, _, slot)
-	local bag = BrotherBags[realm][player].equip[slot]
-	if bag then
-		return strsplit(';', bag)
+function Cache:GetBag(realm, player, bag, tab, slot)
+	if tab then
+		local guild = self:GetGuildID(realm, player)
+		local tab = guild and BrotherBags[realm][guild][tab]
+		if tab then
+			return tab.name, tab.icon, true
+		end
+	else
+		return self:GetItem(realm, player, 'equip', nil, slot)
 	end
 end
 
-function Cache:GetItem(realm, player, bag, slot)
-	local bag = BrotherBags[realm][player][bag]
+function Cache:GetItem(realm, player, bag, tab, slot)
+	if tab then
+		player, bag = self:GetGuildID(realm, player), tab
+	end
+
+	local bag = player and BrotherBags[realm][player][bag]
 	local item = bag and bag[slot]
 	if item then
 		return strsplit(';', item)
 	end
-end
-
-function Cache:GetMoney(realm, player)
-	return BrotherBags[realm][player].money
 end
 
 
@@ -85,17 +89,52 @@ function Cache:GetItemCount(bag, id, unique)
 end
 
 
+--[[ Others ]]--
+
+function Cache:GetGuildID(realm, player)
+	local guild = self:GetGuild(realm, player)
+	return guild and (guild .. '*')
+end
+
+function Cache:GetGuild(realm, player)
+	return BrotherBags[realm][player].guild
+end
+
+function Cache:GetMoney(realm, player)
+	return BrotherBags[realm][player].money
+end
+
+
 --[[ Players ]]--
 
 function Cache:GetPlayer(realm, player)
 	player = BrotherBags[realm][player]
-	return player.class, player.race, player.sex
+	if player then
+		return player.class, player.race, player.sex
+	end
 end
 
 function Cache:DeletePlayer(realm, player)
-	BrotherBags[realm][player] = nil
+	local realm = BrotherBags[realm]
+	local guild = realm[player].guild
+	realm[player] = nil
+
+	for _, actor in pairs(realm) do
+		if actor.guild == guild then
+			return
+		end
+	end
+
+	realm[guild .. '*'] = nil
 end
 
 function Cache:GetPlayers(realm)
-	return BrotherBags[realm]
+	local players = {}
+	for name in pairs(BrotherBags[realm]) do
+		if not name:find('*$') then
+			tinsert(players, name)
+		end
+	end
+
+	return players
 end
