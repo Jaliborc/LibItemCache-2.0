@@ -1,5 +1,5 @@
 --[[
-Copyright 2011-2013 João Cardoso
+Copyright 2011-2014 João Cardoso
 LibItemCache is distributed under the terms of the GNU General Public License.
 You can redistribute it and/or modify it under the terms of the license as
 published by the Free Software Foundation.
@@ -98,4 +98,16 @@ function Tests:GetItemCounts()
 	})
 	
 	AreEqual({1, 5, 6, 2}, {Cache:GetItemCounts('Realm', 'Player', '10')})
+end
+
+function Tests:GetPlayers()
+	Replace('BrotherBags', {
+		Realm = {
+			['Player1'] = {},
+			['Player2'] = {},
+			['Guild*'] = {}
+		}
+	})
+
+	AreEqual({'Player1', 'Player2'}, Cache:GetPlayers('Realm'))
 end

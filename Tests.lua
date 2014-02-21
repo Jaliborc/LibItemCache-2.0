@@ -1,5 +1,5 @@
 --[[
-Copyright 2011-2013 João Cardoso
+Copyright 2011-2014 João Cardoso
 LibItemCache is distributed under the terms of the GNU General Public License.
 You can redistribute it and/or modify it under the terms of the license as
 published by the Free Software Foundation.
@@ -57,12 +57,12 @@ end
 --[[ Bag Types ]]--
 
 function Tests:GetBagType()
-	AreEqual({nil, nil, nil, nil}, {Lib:GetBagType(nil, 1)})
-	AreEqual({true, nil, nil, nil}, {Lib:GetBagType('X', 1)})
+	AreEqual({false, false, false, nil}, {Lib:GetBagType(nil, 1)})
+	AreEqual({true, false, false, nil}, {Lib:GetBagType('X', 1)})
 
-	AreEqual({true, true, nil, nil, nil}, {Lib:GetBagType('X', BANK_CONTAINER)})
-	AreEqual({true, true, nil, nil}, {Lib:GetBagType('X', 6)})
-	AreEqual({true, nil, true, nil}, {Lib:GetBagType('X', 'vault')})
+	AreEqual({true, true, false, nil}, {Lib:GetBagType('X', BANK_CONTAINER)})
+	AreEqual({true, true, false, nil}, {Lib:GetBagType('X', 6)})
+	AreEqual({true, false, true, nil}, {Lib:GetBagType('X', 'vault')})
 	AreEqual({true, nil, nil, 3}, {Lib:GetBagType(nil, 'guild3')})
 end
 
@@ -71,5 +71,5 @@ end
 
 function Tests:GetPlayerInfo()
 	Replace(Lib.Cache, 'GetPlayer', function(self, realm, name) return realm, name, 1 end)
-	AreEqual({'Realm', 'Player', 1}, {Lib:GetPlayerInfo('Player - Realm')})
+	AreEqual({'Realm', 'Player', 1}, {Lib:GetPlayerInfo('Player-Realm')})
 end

@@ -1,5 +1,5 @@
 --[[
-Copyright 2011-2013 João Cardoso
+Copyright 2011-2014 João Cardoso
 LibItemCache is distributed under the terms of the GNU General Public License.
 You can redistribute it and/or modify it under the terms of the license as
 published by the Free Software Foundation.
@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 6)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 8)
 if not Lib then
 	return
 end
@@ -37,6 +37,8 @@ Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.atBank = true end)
 Lib:RegisterEvent('BANKFRAME_CLOSED', function() Lib.atBank = nil end)
 Lib:RegisterEvent('VOID_STORAGE_OPEN', function() Lib.atVault = true end)
 Lib:RegisterEvent('VOID_STORAGE_CLOSE', function() Lib.atVault = nil end)
+Lib:RegisterEvent('GUILDBANKFRAME_OPENED', function() Lib.atGuild = true end)
+Lib:RegisterEvent('GUILDBANKFRAME_CLOSED', function() Lib.atGuild = nil end)
 
 Lib.PLAYER = UnitName('player')
 Lib.REALM = GetRealmName()
@@ -66,7 +68,8 @@ do
 			{"Nesingwary", "Vek'nilash"},
 			{"Aggramar", "Fizzcrank"},
 			{"Echo Isles", "Draenor"},
-			{"Scilla", "Ursin"}
+			{"Scilla", "Ursin"},
+			{'Anasterian (US)', 'Broxigar (US)', 'Brill (EU)', 'Naralex (EU)'}
 		}
 	elseif region == 'eu' then
 		region = {
@@ -154,9 +157,10 @@ end
 
 function Lib:GetBagInfo(player, bag)
 	local isCached, _,_, tab = self:GetBagType(player, bag)
-
+	
 	if tab then
 		if isCached then
+			local realm, player = self:GetPlayerAddress(player)
 			return Cache('GetBag', realm, player, bag, tab, slot)
 		end
 		return GetGuildBankTabInfo(tab)
@@ -216,9 +220,9 @@ function Lib:GetItemInfo(player, bag, slot)
 	elseif isVault then
 		return GetVoidItemInfo(slot)
 	elseif tab then
-		local link = GetGuildBankItemLink(slot, tab)
-		local icon, count, locked = GetGuildBankItemInfo(slot, tab)
-		local quality = self:GetItemQuality(link)
+		local link = GetGuildBankItemLink(tab, slot)
+		local icon, count, locked = GetGuildBankItemInfo(tab, slot)
+		local quality = link and self:GetItemQuality(link)
 
 		return icon, count, locked, quality, nil, nil, link
 
