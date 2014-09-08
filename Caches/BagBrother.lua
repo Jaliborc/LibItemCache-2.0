@@ -31,8 +31,7 @@ local ITEM_ID = '^(%d+)'
 
 function Cache:GetBag(realm, player, bag, tab, slot)
 	if tab then
-		local guild = self:GetGuildID(realm, player)
-		local tab = guild and BrotherBags[realm][guild][tab]
+		local tab = self:GetGuildTab(realm, player, tab)
 		if tab then
 			local name, icon, view, deposit, withdraws, remaining = unpack(tab.info or {})
 			return name, icon, view, deposit, withdraws, remaining, true
@@ -44,14 +43,22 @@ end
 
 function Cache:GetItem(realm, player, bag, tab, slot)
 	if tab then
-		player, bag = self:GetGuildID(realm, player), tab
+		bag = self:GetGuildTab(realm, player, tab)
+	else
+		bag = player and BrotherBags[realm][player][bag]
 	end
 
-	local bag = player and BrotherBags[realm][player][bag]
 	local item = bag and bag[slot]
 	if item then
 		return strsplit(';', item)
 	end
+end
+
+function Cache:GetGuildTab(realm, player, tab)
+	local name = self:GetGuild(realm, player)
+	local guild = name and BrotherBags[realm][name .. '*']
+
+	return guild and guild[tab]
 end
 
 
@@ -91,11 +98,6 @@ end
 
 
 --[[ Others ]]--
-
-function Cache:GetGuildID(realm, player)
-	local guild = self:GetGuild(realm, player)
-	return guild and (guild .. '*')
-end
 
 function Cache:GetGuild(realm, player)
 	return BrotherBags[realm][player].guild
