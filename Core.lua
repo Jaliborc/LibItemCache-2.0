@@ -88,7 +88,7 @@ function Lib:IteratePlayers()
 	if not Lib.players then
 		Lib.players = Cache('GetPlayers', Lib.REALM) or {Lib.PLAYER}
 
-		for i, realm in ipairs(GetAutoCompleteRealms()) do
+		for i, realm in ipairs(GetAutoCompleteRealms() or {}) do
 			for i, player in ipairs(Cache('GetPlayers', realm) or {}) do
 				tinsert(Lib.players, player .. '-' .. realm)
 			end
