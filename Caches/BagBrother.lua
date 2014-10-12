@@ -36,8 +36,10 @@ function Cache:GetBag(realm, player, bag, tab, slot)
 			local name, icon, view, deposit, withdraws, remaining = unpack(tab.info or {})
 			return name, icon, view, deposit, withdraws, remaining, true
 		end
-	else
+	elseif slot then
 		return self:GetItem(realm, player, 'equip', nil, slot)
+	else
+		return self:GetNormalBag(realm, player, bag)
 	end
 end
 
@@ -45,10 +47,10 @@ function Cache:GetItem(realm, player, bag, tab, slot)
 	if tab then
 		bag = self:GetGuildTab(realm, player, tab)
 	else
-		bag = player and BrotherBags[realm][player][bag]
+		bag = self:GetNormalBag(realm, player, bag)
 	end
-
-	local item = bag and bag[slot]
+	
+	item = bag and bag[slot]
 	if item then
 		return strsplit(';', item)
 	end
@@ -59,6 +61,10 @@ function Cache:GetGuildTab(realm, player, tab)
 	local guild = name and BrotherBags[realm][name .. '*']
 
 	return guild and guild[tab]
+end
+
+function Cache:GetNormalBag(realm, player, bag)
+	return realm and player and BrotherBags[realm][player][bag]
 end
 
 
