@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 12)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 13)
 if not Lib then
 	return
 end
@@ -89,8 +89,10 @@ function Lib:IteratePlayers()
 		Lib.players = Cache('GetPlayers', Lib.REALM) or {Lib.PLAYER}
 
 		for i, realm in ipairs(GetAutoCompleteRealms() or {}) do
-			for i, player in ipairs(Cache('GetPlayers', realm) or {}) do
-				tinsert(Lib.players, player .. '-' .. realm)
+			if realm ~= Lib.REALM then
+				for i, player in ipairs(Cache('GetPlayers', realm) or {}) do
+					tinsert(Lib.players, player .. '-' .. realm)
+				end
 			end
 		end
 
@@ -102,6 +104,7 @@ end
 
 function Lib:DeletePlayer(player)
 	Cache('DeletePlayer', self:GetPlayerAddress(player))
+	Lib.players = nil
 end
 
 
