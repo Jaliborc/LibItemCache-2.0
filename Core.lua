@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 13)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 15)
 if not Lib then
 	return
 end
@@ -41,6 +41,7 @@ Lib:RegisterEvent('GUILDBANKFRAME_OPENED', function() Lib.atGuild = true end)
 Lib:RegisterEvent('GUILDBANKFRAME_CLOSED', function() Lib.atGuild = nil end)
 
 Lib.PLAYER = UnitName('player')
+Lib.FACTION = UnitFactionGroup('player')
 Lib.REALM = GetRealmName()
 Lib.Cache = {}
 
@@ -55,7 +56,7 @@ function Lib:GetPlayerInfo(player)
 		local _,race = UnitRace('player')
 		local sex = UnitSex('player')
 		
-		return class, race, sex
+		return class, race, sex, self.FACTION
 	end
 end
 
@@ -77,7 +78,7 @@ end
 
 function Lib:GetPlayerAddress(player)
 	local player, realm = strsplit('-', player or self.PLAYER, 2)
-	return realm or Lib.REALM, player
+	return realm or self.REALM, player
 end
 
 function Lib:IsPlayerCached(player)
@@ -85,26 +86,36 @@ function Lib:IsPlayerCached(player)
 end
 
 function Lib:IteratePlayers()
-	if not Lib.players then
-		Lib.players = Cache('GetPlayers', Lib.REALM) or {Lib.PLAYER}
+	if not self.players then
+		self.players = {}
+
+		for i, player in ipairs(Cache('GetPlayers', self.REALM) or {self.PLAYER}) do
+			if select(4, self:GetPlayerInfo(player)) == self.FACTION then
+				tinsert(self.players, player)
+			end
+		end
 
 		for i, realm in ipairs(GetAutoCompleteRealms() or {}) do
-			if realm ~= Lib.REALM then
+			if realm ~= self.REALM then
 				for i, player in ipairs(Cache('GetPlayers', realm) or {}) do
-					tinsert(Lib.players, player .. '-' .. realm)
+					player = player .. '-' .. realm
+
+					if select(4, self:GetPlayerInfo(player)) == self.FACTION then
+						tinsert(self.players, player)
+					end
 				end
 			end
 		end
 
-		sort(Lib.players)
+		sort(self.players)
 	end
 
-	return pairs(Lib.players)
+	return pairs(self.players)
 end
 
 function Lib:DeletePlayer(player)
 	Cache('DeletePlayer', self:GetPlayerAddress(player))
-	Lib.players = nil
+	self.players = nil
 end
 
 

@@ -72,9 +72,9 @@ end
 
 function Cache:GetItemCounts(realm, player, id)
 	local player = BrotherBags[realm][player]
+	local bank = self:GetItemCount(player[BANK_CONTAINER], id) + self:GetItemCount(player[REAGENTBANK_CONTAINER], id)
 	local equipment = self:GetItemCount(player.equip, id, true)
 	local vault = self:GetItemCount(player.vault, id, true)
-	local bank = self:GetItemCount(player[BANK_CONTAINER], id)
 	local bags = 0
 	
 	for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
@@ -119,7 +119,7 @@ end
 function Cache:GetPlayer(realm, player)
 	player = BrotherBags[realm][player]
 	if player then
-		return player.class, player.race, player.sex
+		return player.class, player.race, player.sex, player.faction and 'Alliance' or 'Horde'
 	end
 end
 
