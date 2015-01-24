@@ -15,6 +15,10 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
+if not WoWUnit then
+	return
+end
+
 local Cache = LibStub('LibItemCache-1.1').Cache
 local AreEqual, Replace = WoWUnit.AreEqual, WoWUnit.Replace
 local Tests = WoWUnit('ItemCache.BagBrother')

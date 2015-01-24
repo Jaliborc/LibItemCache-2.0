@@ -50,7 +50,7 @@ function Cache:GetItem(realm, player, bag, tab, slot)
 		bag = self:GetNormalBag(realm, player, bag)
 	end
 	
-	item = bag and bag[slot]
+	local item = bag and bag[slot]
 	if item then
 		return strsplit(';', item)
 	end
