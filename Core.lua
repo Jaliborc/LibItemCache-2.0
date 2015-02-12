@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 17)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 18)
 if not Lib then
 	return
 end
@@ -187,7 +187,7 @@ end
 
 function Lib:GetBagType(player, bag)
 	local kind = type(bag)
-	local tab = kind == 'string' and tonumber(bag:match('guild(%d+)'))
+	local tab = kind == 'string' and tonumber(bag:match('^guild(%d+)$'))
 	if tab then
 		return not self.atGuild or self:GetPlayerGuild(player) ~= self:GetPlayerGuild(self.PLAYER), nil,nil, tab
 	end

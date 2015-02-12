@@ -33,8 +33,7 @@ function Cache:GetBag(realm, player, bag, tab, slot)
 	if tab then
 		local tab = self:GetGuildTab(realm, player, tab)
 		if tab then
-			local name, icon, view, deposit, withdraws, remaining = unpack(tab.info or {})
-			return name, icon, view, deposit, withdraws, remaining, true
+			return tab.name, tab.icon, tab.view, tab.deposit, tab.withdraw, nil, true
 		end
 	elseif slot then
 		return self:GetItem(realm, player, 'equip', nil, slot)
