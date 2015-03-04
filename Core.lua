@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 18)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 19)
 if not Lib then
 	return
 end
@@ -31,14 +31,6 @@ end
 
 
 --[[ Startup ]]--
-
-LibStub('AceEvent-3.0'):Embed(Lib)
-Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.atBank = true end)
-Lib:RegisterEvent('BANKFRAME_CLOSED', function() Lib.atBank = nil end)
-Lib:RegisterEvent('VOID_STORAGE_OPEN', function() Lib.atVault = true end)
-Lib:RegisterEvent('VOID_STORAGE_CLOSE', function() Lib.atVault = nil end)
-Lib:RegisterEvent('GUILDBANKFRAME_OPENED', function() Lib.atGuild = true end)
-Lib:RegisterEvent('GUILDBANKFRAME_CLOSED', function() Lib.atGuild = nil end)
 
 Lib.PLAYER = UnitName('player')
 Lib.FACTION = UnitFactionGroup('player')
@@ -189,12 +181,12 @@ function Lib:GetBagType(player, bag)
 	local kind = type(bag)
 	local tab = kind == 'string' and tonumber(bag:match('^guild(%d+)$'))
 	if tab then
-		return not self.atGuild or self:GetPlayerGuild(player) ~= self:GetPlayerGuild(self.PLAYER), nil,nil, tab
+		return not self.AtGuild or self:GetPlayerGuild(player) ~= self:GetPlayerGuild(self.PLAYER), nil,nil, tab
 	end
 
 	local vault = bag == 'vault'
 	local bank = bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER or kind == 'number' and bag > NUM_BAG_SLOTS
-	local cached = self:IsPlayerCached(player) or vault and not self.atVault or bank and not self.atBank
+	local cached = self:IsPlayerCached(player) or vault and not self.AtVault or bank and not self.AtBank
 
 	return cached, bank, vault
 end
