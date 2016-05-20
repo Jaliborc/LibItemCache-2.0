@@ -23,7 +23,7 @@ local Lib = LibStub('LibItemCache-1.1')
 local AreEqual, IsTrue, Replace = WoWUnit.AreEqual, WoWUnit.IsTrue, WoWUnit.Replace
 local Tests = WoWUnit('ItemCache', 'PLAYER_LOGIN', 'GET_ITEM_INFO_RECEIVED')
 
-local Shadowmourne = '|cffff8000|Hitem:49623:0:0:0:0:0:0:0:%d+:0:0|h%[Shadowmourne%]|h|r'
+local Shadowmourne = '|cffff8000|Hitem:49623:0:0:0:0:0:0:0:%d+:%d+:0:0:0|h%[Shadowmourne%]|h|r'
 local Hatchling = '|cff1eff00|Hbattlepet:236:1:2:157:10:10:0x0|h[Obsidian Hatchling]|h|r'
 
 
@@ -76,5 +76,5 @@ end
 
 function Tests:GetPlayerInfo()
 	Replace(Lib.Cache, 'GetPlayer', function(self, realm, name) return realm, name, 1 end)
-	AreEqual({'Realm', 'Player', 1}, {Lib:GetPlayerInfo('Player-Realm')})
+	AreEqual({'Realm', 'Player', 1}, {Lib:GetPlayerInfo('Player - Realm')})
 end
