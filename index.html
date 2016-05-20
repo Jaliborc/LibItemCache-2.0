@@ -1,45 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>LibItemCache-1.1 by Jaliborc</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="LibItemCache-1.1 : World of Warcraft item caching simplified">
 
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>LibItemCache-1.1</title>
   </head>
+
   <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/Jaliborc/LibItemCache-1.1">View On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/Jaliborc/LibItemCache-1.1/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/Jaliborc/LibItemCache-1.1/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
 
-    <div class="wrapper">
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Jaliborc/LibItemCache-1.1">View on GitHub</a>
 
-      <section>
-        <div id="title">
-          <h1>LibItemCache-1.1</h1>
-          <p>World of Warcraft item caching simplified</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/Jaliborc">Jaliborc</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
-        </div>
+          <h1 id="project_title">LibItemCache-1.1</h1>
+          <h2 id="project_tagline">World of Warcraft item caching simplified</h2>
 
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Jaliborc/LibItemCache-1.1/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Jaliborc/LibItemCache-1.1/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h3>
-<a name="the-problem" class="anchor" href="#the-problem"><span class="octicon octicon-link"></span></a>The problem</h3>
+<a id="the-problem" class="anchor" href="#the-problem" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The problem</h3>
 
 <p>It's common for <em>World of Warcraft addons</em> to require information of the items the player possesses, wether it is from the inventory, bank, vault, or even from other characters he owns. The problem is that, to be able to access such information, you can't rely on the server, as it only provides it on certain conditions.</p>
 
@@ -48,7 +41,7 @@
 <p>Both of them have flaws. For the first, users may end up having several copies of the same data running on their RAM (bad, but not awful) and each developer must code and maintain his own system (OH NO!). For the second, users must download the required dependency separately (hey, users don't have time for that!).</p>
 
 <h3>
-<a name="the-solution" class="anchor" href="#the-solution"><span class="octicon octicon-link"></span></a>The solution</h3>
+<a id="the-solution" class="anchor" href="#the-solution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The solution</h3>
 
 <p>LibItemCache provides a simple solution: it handles all the access to information for the developer. When the data is available from the server, it retrieves it that way. When not, it retrieves it from a caching system. Support for other caching systems is easy and simple to implement.</p>
 
@@ -57,7 +50,7 @@
 <p><em>* Account thieves usually return no information, as they empty banks, vaults and inventories.</em></p>
 
 <h3>
-<a name="an-api-on-steroids" class="anchor" href="#an-api-on-steroids"><span class="octicon octicon-link"></span></a>An API on steroids</h3>
+<a id="an-api-on-steroids" class="anchor" href="#an-api-on-steroids" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>An API on steroids</h3>
 
 <p>So, how do you use it? Putting it simple, you use it as if you were simply retrieving the information from the server, not having to regard wether it is available online or cached.</p>
 
@@ -66,21 +59,27 @@
 <p>Even more, if <code>"vault"</code> is provided as the <em>bag</em> argument, then the method will behave like <code>GetVoidItemInfo</code>.</p>
 
 <h3>
-<a name="but-you-still-have-to-depend-on-other-caching-systems" class="anchor" href="#but-you-still-have-to-depend-on-other-caching-systems"><span class="octicon octicon-link"></span></a>But you still have to depend on other caching systems</h3>
+<a id="but-you-still-have-to-depend-on-other-caching-systems" class="anchor" href="#but-you-still-have-to-depend-on-other-caching-systems" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>But you still have to depend on other caching systems</h3>
 
 <p>For that purpose you could use BagBrother, a simple caching system: it only caches the information when available, and automatically disables itself when another cache system supported by LibItemCache is available.
 Simply include it in your add-on.</p>
 
 <h3>
-<a name="supporting-other-caches" class="anchor" href="#supporting-other-caches"><span class="octicon octicon-link"></span></a>Supporting other caches</h3>
+<a id="supporting-other-caches" class="anchor" href="#supporting-other-caches" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Supporting other caches</h3>
 
 <p>Support is implemented by making a <em>wrapper</em> file for each caching system. Looking at the existing <em>wrappers</em> code (Caches/*.lua) should be more the enough to understand how to make new ones. If you need extra help, feel free to contact me.</p>
-
-<p>The project is open source, so feel free to fork it!</p>
       </section>
-
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LibItemCache-1.1 maintained by <a href="https://github.com/Jaliborc">Jaliborc</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
     
+
   </body>
 </html>
