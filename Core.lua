@@ -69,8 +69,8 @@ function Lib:GetPlayerGuild(player)
 end
 
 function Lib:GetPlayerAddress(player)
-	local player, realm = strsplit('-', player or self.PLAYER, 2)
-	return realm and realm:sub(2) or self.REALM, realm and player:sub(0, -2) or player
+	local player, realm = player:match('(%S+) %- (%S+)')
+	return realm or self.REALM, player
 end
 
 function Lib:IsPlayerCached(player)
