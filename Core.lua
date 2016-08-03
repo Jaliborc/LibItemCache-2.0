@@ -69,7 +69,7 @@ function Lib:GetPlayerGuild(player)
 end
 
 function Lib:GetPlayerAddress(address)
-	local player, realm = strmatch(address or '', '(%S+) %- (%S+)')
+	local player, realm = strmatch(address or '', '(.+) %- (.+)')
 	return realm or self.REALM, player or address or self.PLAYER
 end
 
