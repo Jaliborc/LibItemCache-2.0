@@ -48,7 +48,7 @@ function Cache:GetItem(realm, player, bag, tab, slot)
 	else
 		bag = self:GetNormalBag(realm, player, bag)
 	end
-	
+
 	local item = bag and bag[slot]
 	if item then
 		return strsplit(';', item)
@@ -75,29 +75,29 @@ function Cache:GetItemCounts(realm, player, id)
 	local equipment = self:GetItemCount(player.equip, id, true)
 	local vault = self:GetItemCount(player.vault, id, true)
 	local bags = 0
-	
+
 	for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
 		bags = bags + self:GetItemCount(player[i], id)
 	end
-	
+
 	for i = FIRST_BANK_SLOT, LAST_BANK_SLOT do
 		bank = bank + self:GetItemCount(player[i], id)
     end
-	
+
 	return equipment, bags, bank, vault
 end
 
 function Cache:GetItemCount(bag, id, unique)
 	local i = 0
-	
+
 	if bag then
 		for _,item in pairs(bag) do
-			if strmatch(item, ITEM_ID) == id then
+			if type(item) == 'string' and strmatch(item, ITEM_ID) == id then
 				i = i + (not unique and tonumber(strmatch(item, ITEM_COUNT)) or 1)
 			end
 		end
 	end
-	
+
 	return i
 end
 
@@ -118,7 +118,7 @@ end
 function Cache:GetPlayer(realm, player)
 	realm = BrotherBags[realm]
 	player = realm and realm[player]
-	
+
 	if player then
 		return player.class, player.race, player.sex, player.faction and 'Alliance' or 'Horde'
 	end
