@@ -15,7 +15,7 @@ along with this library. If not, see <http://www.gnu.org/licenses/>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-1.1', 22)
+local Lib = LibStub:NewLibrary('LibItemCache-1.1', 23)
 if not Lib then
 	return
 end
@@ -242,7 +242,7 @@ function Lib:GetItemCounts(player, id)
 	if self:IsPlayerCached(player) then
 		return Cache('GetItemCounts', realm, name, id)
 	else
-		local vault = select(4, Cache('GetItemCounts', realm, name, id))
+		local vault, guild = select(4, Cache('GetItemCounts', realm, name, id))
 		local id, equip = tonumber(id), 0
 		local total = GetItemCount(id, true)
 		local bags = GetItemCount(id)
@@ -253,7 +253,7 @@ function Lib:GetItemCounts(player, id)
 			end
 		end
 
-		return equip, bags - equip, total - bags, vault or 0
+		return equip, bags - equip, total - bags, vault or 0, guild or 0
 	end
 end
 
