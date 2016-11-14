@@ -281,8 +281,9 @@ function Lib:RestorePetLink(partial)
 end
 
 function Lib:RestoreItemLink(partial)
-	local _, link, quality = GetItemInfo('item:' .. partial)
-	return link, GetItemIcon(link), quality
+	partial = 'item:' .. partial
+	local _, link, quality = GetItemInfo(partial)
+	return link or partial, GetItemIcon(link), quality
 end
 
 
