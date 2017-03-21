@@ -1,5 +1,5 @@
 --[[
-Copyright 2011-2016 João Cardoso
+Copyright 2011-2017 João Cardoso
 LibItemCache is distributed under the terms of the GNU General Public License.
 You can redistribute it and/or modify it under the terms of the license as
 published by the Free Software Foundation.
@@ -24,7 +24,6 @@ local Cache = Lib:NewCache()
 local LAST_BANK_SLOT = NUM_BAG_SLOTS + NUM_BANKBAGSLOTS
 local FIRST_BANK_SLOT = NUM_BAG_SLOTS + 1
 local ITEM_COUNT = ';(%d+)$'
-local ITEM_ID = '^(%d+)'
 
 
 --[[ Items ]]--
@@ -94,11 +93,12 @@ end
 
 function Cache:GetItemCount(bag, id, unique)
 	local count = 0
+	local id = '^'..id
 	
 	if bag then
-		for _,item in pairs(bag) do
-			if strmatch(item, ITEM_ID) == id then
-				count = count + (not unique and tonumber(strmatch(item, ITEM_COUNT)) or 1)
+		for i,item in pairs(bag) do
+			if type(i) == 'number' and item:find(id) then
+				count = count + (not unique and tonumber(item:match(ITEM_COUNT)) or 1)
 			end
 		end
 	end
