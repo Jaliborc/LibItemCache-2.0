@@ -27,12 +27,14 @@ end
 setmetatable(Caches, { __index = AccessInterfaces })
 LibStub('AceEvent-3.0'):Embed(Lib)
 
-Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.AtBank = true end)
-Lib:RegisterEvent('BANKFRAME_CLOSED', function() Lib.AtBank = false end)
-Lib:RegisterEvent('VOID_STORAGE_OPEN', function() Lib.AtVault = true end)
-Lib:RegisterEvent('VOID_STORAGE_CLOSE', function() Lib.AtVault = false end)
-Lib:RegisterEvent('GUILDBANKFRAME_OPENED', function() Lib.AtGuild = true end)
-Lib:RegisterEvent('GUILDBANKFRAME_CLOSED', function() Lib.AtGuild = false end)
+Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.AtBank = true; Lib:SendMessage('CACHE_BANK_OPENED') end)
+Lib:RegisterEvent('BANKFRAME_CLOSED', function() Lib.AtBank = false; Lib:SendMessage('CACHE_BANK_CLOSED') end)
+
+Lib:RegisterEvent('VOID_STORAGE_OPEN', function() Lib.AtVault = true; Lib:SendMessage('CACHE_VAULT_OPENED') end)
+Lib:RegisterEvent('VOID_STORAGE_CLOSE', function() Lib.AtVault = false; Lib:SendMessage('CACHE_VAULT_CLOSED') end)
+
+Lib:RegisterEvent('GUILDBANKFRAME_OPENED', function() Lib.AtGuild = true; Lib:SendMessage('CACHE_GUILD_OPENED') end)
+Lib:RegisterEvent('GUILDBANKFRAME_CLOSED', function() Lib.AtGuild = false; Lib:SendMessage('CACHE_GUILD_CLOSED') end)
 
 
 --[[ API ]]--
@@ -43,9 +45,6 @@ function Lib:GetOwnerInfo(owner)
 
 	local api = isguild and 'GetGuild' or 'GetPlayer'
 	local owner = cached and Caches[api](Caches, realm, name) or {}
-	owner.isguild = isguild
-	owner.cached = cached
-
   if not cached then
     owner.faction = FACTION
 
@@ -59,6 +58,10 @@ function Lib:GetOwnerInfo(owner)
       owner.gender = UnitSex('player')
 		end
   end
+
+	owner.guild = owner.guild and ('® ' .. owner.guild .. ' - ' .. realm)
+	owner.name, owner.realm, owner.isguild = name, realm, isguild
+	owner.cached = cached
 
 	return owner
 end
@@ -82,7 +85,7 @@ function Lib:GetBagInfo(owner, bag)
 		item.cached = true
 	elseif isguild then
 		item.name, item.icon, item.viewable, item.canDeposit, item.numWithdrawals, item.remainingWithdrawals = GetGuildBankTabInfo(bag)
-	else
+	elseif bag ~= 'vault' then
 		item.free = GetContainerNumFreeSlots(bag)
 
 		if bag == REAGENTBANK_CONTAINER then
@@ -155,8 +158,8 @@ function Lib:GetOwnerAddress(owner)
 		return REALM, PLAYER
 	end
 
-  local first, realm = strmatch(owner, '^(.+) *%- *(.+)$')
-	local isguild, name = strmatch(first or owner, '^(®) *(.+)$')
+  local first, realm = strmatch(owner, '^(.-) *%- *(%S+)$')
+	local isguild, name = strmatch(first or owner, '^(®) *(%S+)')
   return realm or REALM, name or first or owner, isguild and true
 end
 
