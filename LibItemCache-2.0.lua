@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 2)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 3)
 if not Lib then
 	return
 end
@@ -85,7 +85,11 @@ function Lib:GetBagInfo(owner, bag)
 		item.cached = true
 	elseif isguild then
 		item.name, item.icon, item.viewable, item.canDeposit, item.numWithdrawals, item.remainingWithdrawals = GetGuildBankTabInfo(bag)
-	elseif bag ~= 'vault' then
+	elseif bag == 'equip' then
+		item.count = INVSLOT_LAST_EQUIPPED
+	elseif bag == 'vault' then
+		item.count = 160
+	else
 		item.free = GetContainerNumFreeSlots(bag)
 
 		if bag == REAGENTBANK_CONTAINER then
@@ -113,6 +117,8 @@ function Lib:GetItemInfo(owner, bag, slot)
   elseif isguild then
     item.link = GetGuildBankItemLink(bag, slot)
     item.icon, item.count, item.locked = GetGuildBankItemInfo(bag, slot)
+	elseif bag == 'equip' then
+		item.link = GetInventoryItemLink('player', slot)
   elseif bag == 'vault' then
     item.id, item.icon, item.locked, item.recent, item.filtered, item.quality = GetVoidItemInfo(1, slot)
   else
@@ -211,7 +217,7 @@ function Lib:RestoreLinkData(partial)
 
 	if partial then
 	  local _, link, quality, _, _, _, _, _, _, icon = GetItemInfo(partial)
-	  local id = tonumber(partial) or tonumber(partial:match('(%d+)'))
+	  local id = tonumber(partial) or tonumber(partial:match('^(%d+)') or partial:match('item:(%d+)'))
 	  return link, id, quality, icon
 	end
 end
