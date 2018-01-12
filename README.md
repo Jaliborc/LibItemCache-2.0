@@ -8,4 +8,4 @@ It solves two major issues:
 
 ## Getting Started
 * To learn how to use the library, see the [API](https://github.com/Jaliborc/LibItemCache-2.0/wiki/API).
-* To learn how to expose your own cache to the library, see [Interface Protocol](https://github.com/Jaliborc/LibItemCache-2.0/wiki/Interface-Protocol).
+* To learn how to expose your own cache to the library, see the [Interface Protocol](https://github.com/Jaliborc/LibItemCache-2.0/wiki/Interface-Protocol).
