@@ -5,4 +5,7 @@ It solves two major issues:
 * Makes querying information about item possesions consistent independently of their location (inventory, void storage, etc) and their owners (players or guilds).
 * Allows item databases to easly distribute their recorded information for other addons to use.
 
-Interested? See the [Wiki](https://github.com/Jaliborc/LibItemCache-2.0/wiki) for more information
+
+## Getting Started
+* To learn how to use the library, see the [API](https://github.com/Jaliborc/LibItemCache-2.0/wiki/API) page.
+* To learn how to expose your own cache to the library, see [Interface Protocol](https://github.com/Jaliborc/LibItemCache-2.0/wiki/Interface-Protocol).
