@@ -2,7 +2,7 @@ title: LibItemCache-1.1
 description: World of Warcraft item caching simplified
 google_analytics: 
 show_downloads: true
-theme: jekyll-theme-tactile
+theme: jekyll-theme-slate
 
 gems:
   - jekyll-mentions
