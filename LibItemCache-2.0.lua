@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 3)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 4)
 if not Lib then
 	return
 end
@@ -64,6 +64,19 @@ function Lib:GetOwnerInfo(owner)
 	owner.cached = cached
 
 	return owner
+end
+
+function Lib:DeleteOwnerInfo(owner)
+	local realm, name, isguild = self:GetOwnerAddress(owner)
+	local cached = self:IsOwnerCached(realm, name, isguild)
+
+	if cached then
+		if isguild then
+				Caches:DeleteGuild(realm, name)
+		else
+				Caches:DeletePlayer(realm, name)
+		end
+	end
 end
 
 function Lib:GetBagInfo(owner, bag)
@@ -155,7 +168,6 @@ function Lib:IterateOwners()
 		end
   end
 end
-
 
 --[[ Advanced ]]--
 
