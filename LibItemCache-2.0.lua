@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 4)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 5)
 if not Lib then
 	return
 end
@@ -182,7 +182,7 @@ function Lib:GetOwnerAddress(owner)
 end
 
 function Lib:GetOwnerID(owner)
-	local name, realm, isguild = self:GetOwnerAddress(owner)
+	local realm, name, isguild = self:GetOwnerAddress(owner)
 	return (isguild and '® ' or '') .. name .. ' - ' .. realm
 end
 
