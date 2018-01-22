@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 6)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 7)
 if not Lib then
 	return
 end
@@ -142,8 +142,12 @@ function Lib:GetItemInfo(owner, bag, slot)
 end
 
 function Lib:IterateOwners()
-	local realms = GetAutoCompleteRealms() or {REALM}
+	local realms = GetAutoCompleteRealms()
   local i, players, guilds, suffix = 0
+
+	if not realms or #realms == 0 then
+		realms = {REALM}
+	end
 
   return function()
 		while i <= #realms do
@@ -161,7 +165,7 @@ function Lib:IterateOwners()
 
 			i = i + 1
 			if i <= #realms then
-				local realm = realms[i]:gsub('(%l)(%u)', '%1-%2') -- autocomplerealms provides wrong names
+				local realm = realms[i]:gsub('(%l)(%u)', '%1-%2') -- names like AzjolNerub to Azjol-Nerub
 				players = Caches:GetPlayers(realm)
 				guilds = Caches:GetGuilds(realm)
 				suffix = realm ~= REALM and ' - ' .. realm or ''
