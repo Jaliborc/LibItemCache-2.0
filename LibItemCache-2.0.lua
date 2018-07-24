@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 7)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 8)
 if not Lib then
 	return
 end
@@ -11,17 +11,32 @@ local COMPLETE_LINK = '|c.+|H.+|h.+|h|r'
 local PET_LINK = '|c%s|Hbattlepet:%sx0|h[%s]|h|r'
 local PET_STRING = '^' .. strrep('%d+:', 6) .. '%d+$'
 local EMPTY_FUNC = function() end
+local BROKEN_REALMS = {
+	['AzjolNerub'] = 'Azjol-Nerub',
+	['Arakarahm'] = 'Arak-arahm',
+	['Корольлич'] = 'Король-лич'
+}
+
+local Realms = GetAutoCompleteRealms()
+if not Realms or #Realms == 0 then
+	Realms = {REALM}
+end
+
+for i,realm in ipairs(Realms) do
+		realm = BROKEN_REALMS[realm] or realm
+		Realms[i] = realm:gsub('(%l)(%u)', '%1 %2') -- names like Blade'sEdge to Blade's Edge
+end
 
 local Caches = {}
 local AccessInterfaces = function(self, key)
-  for name, lib in LibStub:IterateLibraries() do
-    if lib.IsItemCache and lib[key] then
-      self[key] = lib[key]
-      return self[key]
-    end
-  end
+	for name, lib in LibStub:IterateLibraries() do
+		if lib.IsItemCache and lib[key] then
+			self[key] = lib[key]
+			return self[key]
+		end
+	end
 
-  return EMPTY_FUNC
+	return EMPTY_FUNC
 end
 
 setmetatable(Caches, { __index = AccessInterfaces })
@@ -40,24 +55,24 @@ Lib:RegisterEvent('GUILDBANKFRAME_CLOSED', function() Lib.AtGuild = false; Lib:S
 --[[ API ]]--
 
 function Lib:GetOwnerInfo(owner)
-  local realm, name, isguild = self:GetOwnerAddress(owner)
-  local cached = self:IsOwnerCached(realm, name, isguild)
+	local realm, name, isguild = self:GetOwnerAddress(owner)
+	local cached = self:IsOwnerCached(realm, name, isguild)
 
 	local api = isguild and 'GetGuild' or 'GetPlayer'
 	local owner = cached and Caches[api](Caches, realm, name) or {}
-  if not cached then
-    owner.faction = FACTION
+	if not cached then
+		owner.faction = FACTION
 
 		if isguild then
 			-- what information should go here?
 		else
-      owner.money = (GetMoney() or 0) - GetCursorMoney() - GetPlayerTradeMoney()
-      owner.class = select(2, UnitClass('player'))
-      owner.race = select(2, UnitRace('player'))
-      owner.guild = GetGuildInfo('player')
-      owner.gender = UnitSex('player')
+			owner.money = (GetMoney() or 0) - GetCursorMoney() - GetPlayerTradeMoney()
+			owner.class = select(2, UnitClass('player'))
+			owner.race = select(2, UnitRace('player'))
+			owner.guild = GetGuildInfo('player')
+			owner.gender = UnitSex('player')
 		end
-  end
+	end
 
 	owner.guild = owner.guild and ('® ' .. owner.guild .. ' - ' .. realm)
 	owner.name, owner.realm, owner.isguild = name, realm, isguild
@@ -72,19 +87,19 @@ function Lib:DeleteOwnerInfo(owner)
 
 	if cached then
 		if isguild then
-				Caches:DeleteGuild(realm, name)
+			Caches:DeleteGuild(realm, name)
 		else
-				Caches:DeletePlayer(realm, name)
+			Caches:DeletePlayer(realm, name)
 		end
 	end
 end
 
 function Lib:GetBagInfo(owner, bag)
-  local realm, name, isguild = self:GetOwnerAddress(owner)
-  local cached = self:IsBagCached(realm, name, isguild, bag)
+	local realm, name, isguild = self:GetOwnerAddress(owner)
+	local cached = self:IsBagCached(realm, name, isguild, bag)
 
-  local api = isguild and 'GetGuildTab' or 'GetBag'
-  local item = cached and Caches[api](Caches, realm, name, bag) or {}
+	local api = isguild and 'GetGuildTab' or 'GetBag'
+	local item = cached and Caches[api](Caches, realm, name, bag) or {}
 
 	if isguild then
 		item.count = 98
@@ -115,42 +130,37 @@ function Lib:GetBagInfo(owner, bag)
 		end
 	end
 
-  return self:RestoreItemData(item)
+	return self:RestoreItemData(item)
 end
 
 function Lib:GetItemInfo(owner, bag, slot)
-  local realm, name, isguild = self:GetOwnerAddress(owner)
-  local cached = self:IsBagCached(realm, name, isguild, bag)
+	local realm, name, isguild = self:GetOwnerAddress(owner)
+	local cached = self:IsBagCached(realm, name, isguild, bag)
 
-  local api = isguild and 'GetGuildItem' or 'GetItem'
-  local item = cached and Caches[api](Caches, realm, name, bag, slot) or {}
+	local api = isguild and 'GetGuildItem' or 'GetItem'
+	local item = cached and Caches[api](Caches, realm, name, bag, slot) or {}
 
-  if cached then
-    item.cached = true
-  elseif isguild then
-    item.link = GetGuildBankItemLink(bag, slot)
-    item.icon, item.count, item.locked = GetGuildBankItemInfo(bag, slot)
+	if cached then
+		item.cached = true
+	elseif isguild then
+		item.link = GetGuildBankItemLink(bag, slot)
+		item.icon, item.count, item.locked = GetGuildBankItemInfo(bag, slot)
 	elseif bag == 'equip' then
 		item.link = GetInventoryItemLink('player', slot)
-  elseif bag == 'vault' then
-    item.id, item.icon, item.locked, item.recent, item.filtered, item.quality = GetVoidItemInfo(1, slot)
-  else
-    item.icon, item.count, item.locked, item.quality, item.readable, item.lootable, item.link, item.filtered, item.worthless, item.id = GetContainerItemInfo(bag, slot)
-  end
+	elseif bag == 'vault' then
+		item.id, item.icon, item.locked, item.recent, item.filtered, item.quality = GetVoidItemInfo(1, slot)
+	else
+		item.icon, item.count, item.locked, item.quality, item.readable, item.lootable, item.link, item.filtered, item.worthless, item.id = GetContainerItemInfo(bag, slot)
+	end
 
-  return self:RestoreItemData(item)
+	return self:RestoreItemData(item)
 end
 
 function Lib:IterateOwners()
-	local realms = GetAutoCompleteRealms()
-  local i, players, guilds, suffix = 0
+	local i, players, guilds, suffix = 0
 
-	if not realms or #realms == 0 then
-		realms = {REALM}
-	end
-
-  return function()
-		while i <= #realms do
+	return function()
+		while i <= #Realms do
 			local owner = players and players()
 			if owner then
 				return owner .. suffix
@@ -164,14 +174,13 @@ function Lib:IterateOwners()
 			end
 
 			i = i + 1
-			if i <= #realms then
-				local realm = realms[i]:gsub('(%l)(%u)', '%1-%2') -- names like AzjolNerub to Azjol-Nerub
-				players = Caches:GetPlayers(realm)
-				guilds = Caches:GetGuilds(realm)
-				suffix = realm ~= REALM and ' - ' .. realm or ''
+			if i <= #Realms then
+				players = Caches:GetPlayers(Realms[i])
+				guilds = Caches:GetGuilds(Realms[i])
+				suffix = Realms[i] ~= REALM and ' - ' .. Realms[i] or ''
 			end
 		end
-  end
+	end
 end
 
 --[[ Advanced ]]--
@@ -181,9 +190,9 @@ function Lib:GetOwnerAddress(owner)
 		return REALM, PLAYER
 	end
 
-  local first, realm = strmatch(owner, '^(.-) *%- *(%S+)$')
+	local first, realm = strmatch(owner, '^(.-) *%- *(%S+)$')
 	local isguild, name = strmatch(first or owner, '^(®) *(.+)')
-  return realm or REALM, name or first or owner, isguild and true
+	return realm or REALM, name or first or owner, isguild and true
 end
 
 function Lib:GetOwnerID(owner)
@@ -192,49 +201,49 @@ function Lib:GetOwnerID(owner)
 end
 
 function Lib:IsOwnerCached(realm, name, isguild)
-   if isguild then
-     return realm ~= REALM or name ~= GetGuildInfo('player')
-   else
-     return realm ~= REALM or name ~= PLAYER
-   end
+	if isguild then
+		return realm ~= REALM or name ~= GetGuildInfo('player')
+	else
+		return realm ~= REALM or name ~= PLAYER
+	end
 end
 
 function Lib:IsBagCached(realm, name, isguild, bag)
-  if self:IsOwnerCached(realm, name, isguild) then
-    return true
-  end
+	if self:IsOwnerCached(realm, name, isguild) then
+		return true
+	end
 
-  local isBankBag = bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER or type(bag) == 'number' and bag > NUM_BAG_SLOTS
+	local isBankBag = bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER or type(bag) == 'number' and bag > NUM_BAG_SLOTS
 	return isguild and not self.AtGuild or bag == 'vault' and not self.AtVault or isBankBag and not self.AtBank
 end
 
 function Lib:RestoreItemData(item)
-  local link, id, quality, icon = self:RestoreLinkData(item.link or item.id)
+	local link, id, quality, icon = self:RestoreLinkData(item.link or item.id)
 	local query = link or item.id or id
 
-  item.icon = item.icon or icon or query and GetItemIcon(query)
-  item.quality = (not item.quality or item.quality < 0) and quality or item.quality
+	item.icon = item.icon or icon or query and GetItemIcon(query)
+	item.quality = (not item.quality or item.quality < 0) and quality or item.quality
 	item.id = item.id or id
 	item.link = link
-  return item
+	return item
 end
 
 function Lib:RestoreLinkData(partial)
-  if type(partial) == 'string' and not partial:find(COMPLETE_LINK) then
-    if partial:sub(1,9) == 'battlepet' or partial:find(PET_STRING) then
-      local id, quality = partial:match('(%d+):%d+:(%d+)')
-      local name, icon = C_PetJournal.GetPetInfoBySpeciesID(id)
-      local color = select(4, GetItemQualityColor(quality))
+	if type(partial) == 'string' and not partial:find(COMPLETE_LINK) then
+		if partial:sub(1,9) == 'battlepet' or partial:find(PET_STRING) then
+			local id, quality = partial:match('(%d+):%d+:(%d+)')
+			local name, icon = C_PetJournal.GetPetInfoBySpeciesID(id)
+			local color = select(4, GetItemQualityColor(quality))
 
-      return PET_LINK:format(color, partial, name), id, quality, icon
-    elseif partial:sub(1,5) ~= 'item:' then
-      partial = 'item:' .. partial
-    end
-  end
+			return PET_LINK:format(color, partial, name), id, quality, icon
+		elseif partial:sub(1,5) ~= 'item:' then
+			partial = 'item:' .. partial
+		end
+	end
 
 	if partial then
-	  local _, link, quality, _, _, _, _, _, _, icon = GetItemInfo(partial)
-	  local id = tonumber(partial) or tonumber(partial:match('^(%d+)') or partial:match('item:(%d+)'))
-	  return link, id, quality, icon
+		local _, link, quality, _, _, _, _, _, _, icon = GetItemInfo(partial)
+		local id = tonumber(partial) or tonumber(partial:match('^(%d+)') or partial:match('item:(%d+)'))
+		return link, id, quality, icon
 	end
 end
