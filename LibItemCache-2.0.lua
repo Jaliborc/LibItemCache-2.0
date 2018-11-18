@@ -254,6 +254,12 @@ function Lib:IsBagCached(realm, name, isguild, bag)
 end
 
 function Lib:RestoreItemData(item)
+	
+	--Clear the link so we only use the id for mythic keystones
+	if (item.id == 158923) then
+		item.link = nil;
+	end
+	
 	local link, id, quality, icon = self:RestoreLinkData(item.link or item.id)
 	local query = link or item.id or id
 
