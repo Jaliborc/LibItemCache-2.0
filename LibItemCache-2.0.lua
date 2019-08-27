@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 13)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 14)
 if not Lib then
 	return
 end
@@ -211,20 +211,21 @@ end
 
 --[[ Advanced ]]--
 
+function Lib:GetOwnerID(owner)
+	local realm, name, isguild = self:GetOwnerAddress(owner)
+	return (isguild and '® ' or '') .. name .. ' - ' .. realm
+end
+
 function Lib:GetOwnerAddress(owner)
+	FindRealms()
+
 	if not owner then
-		FindRealms()
 		return REALM, PLAYER
 	end
 
 	local first, realm = strmatch(owner, '^(.-) *%- *(.+)$')
 	local isguild, name = strmatch(first or owner, '^(®) *(.+)')
 	return realm or REALM, name or first or owner, isguild and true
-end
-
-function Lib:GetOwnerID(owner)
-	local realm, name, isguild = self:GetOwnerAddress(owner)
-	return (isguild and '® ' or '') .. name .. ' - ' .. realm
 end
 
 function Lib:IsOwnerCached(realm, name, isguild)
@@ -263,6 +264,7 @@ function Lib:RestoreLinkData(partial)
 	if type(partial) == 'string' and not partial:find(COMPLETE_LINK) then
 		if partial:sub(1,9) == 'battlepet' or partial:find(PET_STRING) then
 			local id, quality = partial:match('(%d+):%d+:(%d+)')
+			local id, quality = tonumber(id), tonumber(quality)
 			local name, icon = C_PetJournal.GetPetInfoBySpeciesID(id)
 			local color = select(4, GetItemQualityColor(quality))
 
