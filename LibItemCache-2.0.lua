@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 15)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 16)
 if not Lib then
 	return
 end
@@ -39,9 +39,12 @@ LibStub('AceEvent-3.0'):Embed(Lib)
 Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.AtBank = true; Lib:SendMessage('CACHE_BANK_OPENED') end)
 Lib:RegisterEvent('BANKFRAME_CLOSED', function() Lib.AtBank = false; Lib:SendMessage('CACHE_BANK_CLOSED') end)
 
-if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+if CanUseVoidStorage then
 	Lib:RegisterEvent('VOID_STORAGE_OPEN', function() Lib.AtVault = true; Lib:SendMessage('CACHE_VAULT_OPENED') end)
 	Lib:RegisterEvent('VOID_STORAGE_CLOSE', function() Lib.AtVault = false; Lib:SendMessage('CACHE_VAULT_CLOSED') end)
+end
+
+if CanGuildBankRepair then
 	Lib:RegisterEvent('GUILDBANKFRAME_OPENED', function() Lib.AtGuild = true; Lib:SendMessage('CACHE_GUILD_OPENED') end)
 	Lib:RegisterEvent('GUILDBANKFRAME_CLOSED', function() Lib.AtGuild = false; Lib:SendMessage('CACHE_GUILD_CLOSED') end)
 end
