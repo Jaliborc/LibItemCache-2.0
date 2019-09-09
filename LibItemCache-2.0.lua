@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 16)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 17)
 if not Lib then
 	return
 end
@@ -207,6 +207,23 @@ function Lib:GetItemID(owner, bag, slot)
 		return GetVoidItemInfo(1, slot)
 	else
 		return GetContainerItemID(bag, slot)
+	end
+end
+
+function Lib:PickupItem(owner, bag, slot)
+	local realm, name, isguild = self:GetOwnerAddress(owner)
+	local cached = self:IsBagCached(realm, name, isguild, bag)
+
+	if not cached then
+		if isguild then
+			PickupGuildBankItem(slot)
+		elseif bag == 'equip' then
+			PickupInventoryItem(slot)
+		elseif bag == 'vault' then
+			ClickVoidStorageSlot(slot)
+		else
+			PickupContainerItem(bag, slot)
+		end
 	end
 end
 
