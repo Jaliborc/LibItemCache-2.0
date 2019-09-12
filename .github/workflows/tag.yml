@@ -14,4 +14,4 @@ jobs:
         with:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           source_file: "LibItemCache-2.0.lua"
-          extraction_regex: "LibStub:NewLibrary\\(['\\"\\s]+LibItemCache-2.0['\\"\\s]+,\\s*(\\d+)\\)"
+          extraction_regex: "LibStub:NewLibrary\\(['\\s]+LibItemCache-2.0['\\s]+,\\s*(\\d+)\\)"
