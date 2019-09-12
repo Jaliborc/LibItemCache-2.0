@@ -2,8 +2,6 @@ name: tag
 
 on:
   push:
-    paths:
-      - LibItemCache-2.0.lua
     branches:
       - master
 
