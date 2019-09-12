@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 17)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 18)
 if not Lib then
 	return
 end
@@ -15,7 +15,7 @@ local FindRealms = function()
 		PLAYER, REALM = UnitFullName('player')
 		REALMS = GetAutoCompleteRealms()
 
-		if #REALMS == 0 then
+		if not REALMS or #REALMS == 0 then
 			REALMS = {REALM}
 		end
 	end
@@ -160,6 +160,10 @@ function Lib:GetBagInfo(owner, bag)
 			item.link = GetInventoryItemLink('player', item.slot)
 			item.icon = GetInventoryItemTexture('player', item.slot)
 			item.count = GetContainerNumSlots(bag)
+
+			if bag > NUM_BAG_SLOTS then
+				item.owned = (bag - NUM_BAG_SLOTS) > GetNumBankSlots()
+			end
 		end
 	end
 
