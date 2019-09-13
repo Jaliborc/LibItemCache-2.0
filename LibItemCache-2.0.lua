@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 18)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 19)
 if not Lib then
 	return
 end
@@ -137,8 +137,12 @@ function Lib:GetBagInfo(owner, bag)
 		item.count = 160
 	elseif bag == 'equip' then
 		item.count = INVSLOT_LAST_EQUIPPED
-	elseif bag == REAGENTBANK_CONTAINER or bag == BACKPACK_CONTAINER or bag == BANK_CONTAINER then
-		item.count = GetContainerNumSlots(bag)
+	else
+		if bag == REAGENTBANK_CONTAINER or bag == BACKPACK_CONTAINER or bag == BANK_CONTAINER then
+			item.count = GetContainerNumSlots(bag)
+		end
+
+		item.owned = item.owned or (bag >= KEYRING_CONTAINER and bag <= NUM_BAG_SLOTS) or item.id or item.link
 	end
 
 	if cached then
@@ -154,6 +158,7 @@ function Lib:GetBagInfo(owner, bag)
 		item.free = GetContainerNumFreeSlots(bag)
 
 		if bag == REAGENTBANK_CONTAINER then
+			item.cost = GetReagentBankCost()
 			item.owned = IsReagentBankUnlocked()
 		elseif bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
 			item.slot = ContainerIDToInventoryID(bag)
@@ -162,7 +167,8 @@ function Lib:GetBagInfo(owner, bag)
 			item.count = GetContainerNumSlots(bag)
 
 			if bag > NUM_BAG_SLOTS then
-				item.owned = (bag - NUM_BAG_SLOTS) > GetNumBankSlots()
+				item.owned = (bag - NUM_BAG_SLOTS) <= GetNumBankSlots()
+				item.cost = GetBankSlotCost()
 			end
 		end
 	end
