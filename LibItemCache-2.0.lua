@@ -1,4 +1,4 @@
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 19)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 20)
 if not Lib then
 	return
 end
@@ -230,7 +230,7 @@ function Lib:PickupItem(owner, bag, slot)
 		elseif bag == 'equip' then
 			PickupInventoryItem(slot)
 		elseif bag == 'vault' then
-			ClickVoidStorageSlot(slot)
+			ClickVoidStorageSlot(1, slot)
 		else
 			PickupContainerItem(bag, slot)
 		end
