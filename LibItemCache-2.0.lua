@@ -204,6 +204,19 @@ function Lib:GetBagInfo(owner, bag)
 	return Lib:RestoreItemData(item)
 end
 
+if (Caches.GetItemCount and Caches.GetItemCount ~= EMPTY_FUNC and
+	  Caches.GetGuildItemCount and Caches.GetGuildItemCount ~= EMPTY_FUNC) then
+	function Lib:GetItemCount(owner, bag, itemId)
+		local realm, name, isguild = Lib:GetOwnerAddress(owner)
+
+		if (isguild) then
+			return Caches:GetGuildItemCount(realm, name, bag, itemId) or 0
+		else
+			return Caches:GetItemCount(realm, name, bag, itemId) or 0
+		end
+	end
+end
+
 function Lib:GetItemInfo(owner, bag, slot)
 	local realm, name, isguild = Lib:GetOwnerAddress(owner)
 	local cached = Lib:IsBagCached(realm, name, isguild, bag)
