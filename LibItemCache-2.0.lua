@@ -78,6 +78,7 @@ function Lib:GetOwnerInfo(owner)
 
 	local api = isguild and 'GetGuild' or 'GetPlayer'
 	local owner = cached and Caches[api](Caches, realm, name) or {}
+
 	if not cached then
 		owner.faction = FACTION
 
@@ -204,17 +205,12 @@ function Lib:GetBagInfo(owner, bag)
 	return Lib:RestoreItemData(item)
 end
 
-if (Caches.GetItemCount and Caches.GetItemCount ~= EMPTY_FUNC and
-	  Caches.GetGuildItemCount and Caches.GetGuildItemCount ~= EMPTY_FUNC) then
-	function Lib:GetItemCount(owner, bag, itemId)
-		local realm, name, isguild = Lib:GetOwnerAddress(owner)
+function Lib:GetPlayerItemCount(realm, name, bag, itemId)
+	return Caches:GetItemCount(realm, name, bag, itemId) or 0
+end
 
-		if (isguild) then
-			return Caches:GetGuildItemCount(realm, name, bag, itemId) or 0
-		else
-			return Caches:GetItemCount(realm, name, bag, itemId) or 0
-		end
-	end
+function Lib:GetGuildItemCount(realm, name, itemId)
+	return Caches:GetGuildItemCount(realm, name, itemId) or 0
 end
 
 function Lib:GetItemInfo(owner, bag, slot)
