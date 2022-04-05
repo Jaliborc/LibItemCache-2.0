@@ -1,5 +1,5 @@
 --[[
-Copyright 2013-2021 João Cardoso
+Copyright 2013-2022 João Cardoso
 LibItemCache is distributed under the terms of the GNU General Public License (Version 3).
 As a special exception, the copyright holders of this library give you permission to embed it
 with independent modules to produce an addon, regardless of the license terms of these
@@ -18,7 +18,7 @@ along with the library. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 30)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 31)
 if not Lib then return end
 
 local PLAYER, FACTION, REALM, REALMS
@@ -197,7 +197,7 @@ function Lib:GetBagInfo(owner, bag)
 		if bag == KEYRING_CONTAINER then
 			item.family = 9
 		elseif bag <= BACKPACK_CONTAINER then
-			item.count = item.count or item.owned and GetContainerNumSlots(bag)
+			item.count = item.count or item.owned and ContainerFrame_GetContainerNumSlots(bag)
 			item.family = bag ~= REAGENTBANK_CONTAINER and 0 or REAGENTBANK_CONTAINER
 		end
 	end
