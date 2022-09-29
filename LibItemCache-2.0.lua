@@ -18,7 +18,7 @@ along with the library. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 33)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 34)
 if not Lib then return end
 
 local PLAYER, FACTION, REALM, REALMS
@@ -61,13 +61,20 @@ Events:Embed(Lib)
 Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.AtBank = true; Lib:SendMessage('CACHE_BANK_OPENED') end)
 Lib:RegisterEvent('BANKFRAME_CLOSED', function() Lib.AtBank = false; Lib:SendMessage('CACHE_BANK_CLOSED') end)
 
-if CanUseVoidStorage then
-	if C_PlayerInteractionManager then
-
-	else
-		Lib:RegisterEvent('VOID_STORAGE_OPEN', function() Lib.AtVault = true; Lib:SendMessage('CACHE_VAULT_OPENED') end)
-		Lib:RegisterEvent('VOID_STORAGE_CLOSE', function() Lib.AtVault = false; Lib:SendMessage('CACHE_VAULT_CLOSED') end)
-	end
+if C_PlayerInteractionManager then
+	Lib:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW', function(_,frame)
+		if frame == Enum.PlayerInteractionType.VoidStorageBanker then
+		 Lib.AtVault = true; Lib:SendMessage('CACHE_VAULT_OPENED')
+		end
+	end)
+	Lib:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE', function(_,frame)
+		if frame == Enum.PlayerInteractionType.VoidStorageBanker then
+		 Lib.AtVault = false; Lib:SendMessage('CACHE_VAULT_CLOSED')
+		end
+	end)
+elseif CanUseVoidStorage then
+	Lib:RegisterEvent('VOID_STORAGE_OPEN', function() Lib.AtVault = true; Lib:SendMessage('CACHE_VAULT_OPENED') end)
+	Lib:RegisterEvent('VOID_STORAGE_CLOSE', function() Lib.AtVault = false; Lib:SendMessage('CACHE_VAULT_CLOSED') end)
 end
 
 if CanGuildBankRepair then
