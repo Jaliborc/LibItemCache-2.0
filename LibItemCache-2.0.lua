@@ -18,7 +18,7 @@ along with the library. If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
 This file is part of LibItemCache.
 --]]
 
-local Lib = LibStub:NewLibrary('LibItemCache-2.0', 34)
+local Lib = LibStub:NewLibrary('LibItemCache-2.0', 35)
 if not Lib then return end
 
 local PLAYER, FACTION, REALM, REALMS
@@ -58,6 +58,7 @@ end
 setmetatable(Caches, { __index = AccessInterfaces })
 Events:Embed(Lib)
 
+Lib.NumBags = NUM_TOTAL_EQUIPPED_BAG_SLOTS or NUM_BAG_SLOTS
 Lib:RegisterEvent('BANKFRAME_OPENED', function() Lib.AtBank = true; Lib:SendMessage('CACHE_BANK_OPENED') end)
 Lib:RegisterEvent('BANKFRAME_CLOSED', function() Lib.AtBank = false; Lib:SendMessage('CACHE_BANK_CLOSED') end)
 
@@ -188,8 +189,8 @@ function Lib:GetBagInfo(owner, bag)
 			item.icon = GetInventoryItemTexture('player', item.slot)
 			item.count = GetContainerNumSlots(bag)
 
-			if bag > NUM_BAG_SLOTS then
-				item.owned = (bag - NUM_BAG_SLOTS) <= GetNumBankSlots()
+			if bag > Lib.NumBags then
+				item.owned = (bag - Lib.NumBags) <= GetNumBankSlots()
 				item.cost = GetBankSlotCost()
 			end
 		end
@@ -204,7 +205,7 @@ function Lib:GetBagInfo(owner, bag)
 		item.count = INVSLOT_LAST_EQUIPPED
 		item.owned = true
 	else
-		item.owned = item.owned or (bag >= KEYRING and bag <= NUM_BAG_SLOTS) or item.id or item.link
+		item.owned = item.owned or (bag >= KEYRING and bag <= Lib.NumBags) or item.id or item.link
 
 		if bag == KEYRING then
 			item.family = 9
@@ -311,7 +312,7 @@ function Lib:IsBagCached(realm, name, isguild, bag)
 		return not Lib.AtGuild
 	end
 
-	local isBankBag = bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER or type(bag) == 'number' and bag > NUM_BAG_SLOTS
+	local isBankBag = Lib:IsBank(bag) or Lib:IsReagents(bag) or type(bag) == 'number' and Lib:IsBankBag(bag)
 	return isBankBag and not Lib.AtBank or bag == 'vault' and not Lib.AtVault
 end
 
@@ -410,7 +411,7 @@ function Lib:IsBank(bag)
 end
 
 function Lib:IsBankBag(bag)
-  return bag > NUM_BAG_SLOTS and bag <= (NUM_BAG_SLOTS + NUM_BANKBAGSLOTS)
+  return bag > Lib.NumBags and bag <= (Lib.NumBags + NUM_BANKBAGSLOTS)
 end
 
 function Lib:IsReagents(bag)
