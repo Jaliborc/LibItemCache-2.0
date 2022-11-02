@@ -68,6 +68,17 @@ end
 if CanGuildBankRepair then
 	Lib:RegisterEvent('GUILDBANKFRAME_OPENED', function() Lib.AtGuild = true; Lib:SendMessage('CACHE_GUILD_OPENED') end)
 	Lib:RegisterEvent('GUILDBANKFRAME_CLOSED', function() Lib.AtGuild = false; Lib:SendMessage('CACHE_GUILD_CLOSED') end)
+	-- Seems like Blizz nuked GUILDBANKFRAME_OPENED and GUILDBANKFRAME_CLOSED from orbit with 10.0, so resorting to the below to get guild bank working
+	Lib:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW', function(_,frame)
+		if frame == Enum.PlayerInteractionType.GuildBanker then
+		 Lib.AtGuild = true; Lib:SendMessage('CACHE_GUILD_OPENED')
+		end
+	end)
+	Lib:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE', function(_,frame)
+		if frame == Enum.PlayerInteractionType.GuildBanker then
+		 Lib.AtGuild = false; Lib:SendMessage('CACHE_GUILD_CLOSED')
+		end
+	end)
 end
 
 
