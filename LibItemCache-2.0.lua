@@ -31,6 +31,14 @@ local KEYSTONE_STRING = '^' .. strrep('%d+:', 6) .. '%d+$'
 local EMPTY_FUNC = function() end
 local KEYRING = -2
 
+-- Patch 10.0.2 moved to C_Container
+GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots or GetContainerNumFreeSlots 
+PickupContainerItem = C_Container.PickupContainerItem or PickupContainerItem
+GetContainerItemID = C_Container.GetContainerItemID or GetContainerItemID
+GetContainerItemInfo = C_Container.GetContainerItemInfo or GetContainerItemInfo
+GetContainerNumSlots = C_Container.GetContainerNumSlots or GetContainerNumSlots
+ContainerIDToInventoryID = C_Container.ContainerIDToInventoryID or ContainerIDToInventoryID
+
 local FindRealms = function()
 	if not REALM then
 		PLAYER, REALM = UnitFullName('player')
@@ -235,7 +243,18 @@ function Lib:GetItemInfo(owner, bag, slot)
 	elseif bag == 'vault' then
 		item.id, item.icon, item.locked, item.recent, item.filtered, item.quality = GetVoidItemInfo(1, slot)
 	else
-		item.icon, item.count, item.locked, item.quality, item.readable, item.lootable, item.link, item.filtered, item.worthless, item.id = GetContainerItemInfo(bag, slot)
+		local containerInfo = GetContainerItemInfo(bag, slot)
+ 		if containerInfo then
+			item.icon = containerInfo.iconFileID
+			item.count = containerInfo.stackCount
+			item.locked = containerInfo.isLocked
+			item.quality = containerInfo.quality
+			item.readable = containerInfo.isReadable
+			item.lootable = containerInfo.hasLoot
+			item.link = containerInfo.hyperlink
+			item.filtered = containerInfo.isFiltered
+			item.worthless = containerInfo.hasNoValue
+		end
 	end
 
 	return Lib:RestoreItemData(item)
